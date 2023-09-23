@@ -3,3 +3,4 @@ plan: false
 vars:
   service: payments-plugin-cubecart-6.x
   squad: juno
+  domain: webshop-payments
