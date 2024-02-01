@@ -1,234 +1,169 @@
 <?php
-class Gateway {
-	private $_config;
-	private $_module;
-	private $_basket;
+
+class Gateway
+{
+    private $_config;
+    private $_module;
     private $_lang;
-	private $_result_message;
+    private $_result_message;
 
-    public function __construct($module = false, $basket = false) {
-		$this->_config	= $GLOBALS['config']->get('config');
-		$this->_module	= $module;
-		$this->_basket	= $GLOBALS['cart']->basket;
-        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
-		$this->_lang = $GLOBALS['language']->getStrings('lunar_text');
-	}
-
-    public function transfer() {
-		$transfer	= array(
-			'action'	=> 'index.php?_g=rm&type=plugins&cmd=call&module=Lunar_Payments&cart_order_id='.$this->_basket['cart_order_id'],
-			'method'	=> 'post',
-			'target'	=> '_self',
-			'submit'	=> 'auto',
-		);
-		return $transfer;
-	}
-
-    public function call() {
-      $GLOBALS['gui']->changeTemplateDir(dirname(__FILE__).'/'.'skin/');
-
-      $GLOBALS['smarty']->assign('MODULE', $this->_module);
-
-      $order				= Order::getInstance();
-      $cart_order_id		= sanitizeVar($_GET['cart_order_id']);
-      $order_summary		= $order->getSummary($cart_order_id);
-      $GLOBALS['smarty']->assign('ORDERID', $cart_order_id);
-
-      // If txn id, redirect to process
-      if(isset($_SESSION['lunar_token'])) {
-        $GLOBALS['smarty']->assign('TXNID', $_SESSION['lunar_token']);
-        $GLOBALS['smarty']->display('redirect.tpl');
-      }
+    public function __construct($module = false, $basket = false)
+    {
+        $this->_config  = $GLOBALS['config']->get('config');
+        $this->_module  = $module;
+        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR . '/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
+        $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
     }
 
-    public function process() {
-      if((isset($_GET['orderid'])&&$_GET['orderid'])&&(isset($_GET['transactionid'])&&$_GET['transactionid'])) {
+    public function transfer()
+    {
+        $transfer  = [
+            'action'  => 'index.php?_g=rm&type=plugins&cmd=call&module=Lunar_Payments&cart_order_id=' . $GLOBALS['cart']->basket['cart_order_id'],
+            'method'  => 'post',
+            'target'  => '_self',
+            'submit'  => 'auto',
+        ];
+        return $transfer;
+    }
+
+    public function call()
+    {
+        $GLOBALS['gui']->changeTemplateDir(dirname(__FILE__) . '/' . 'skin/');
+
+        $GLOBALS['smarty']->assign('MODULE', $this->_module);
+
+        $order = Order::getInstance();
+        $cart_order_id = sanitizeVar($_GET['cart_order_id']);
+        $orderSummary = $order->getSummary($cart_order_id);
+        // $GLOBALS['smarty']->assign('ORDERID', $cart_order_id);
+
+        $GLOBALS['smarty']->display('redirect.tpl');
+    }
+
+    public function process()
+    {
+        if (empty($_GET['orderid']) && empty($_GET['orderid']) && empty($_GET['transactionid']) && empty($_GET['transactionid'])) {
+            $GLOBALS['main']->errorMessage($GLOBALS['language']->lunar_text['idsmissing']);
+            httpredir(currentPage(['_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'], ['_a' => 'checkout']));
+            return false;
+        }
+
         $orderid = sanitizeVar($_GET['orderid']);
         $transactionid = sanitizeVar($_GET['transactionid']);
 
-        $order				= Order::getInstance();
-        $order_summary		= $order->getSummary($orderid);
+        $order = Order::getInstance();
+        $orderSummary = $order->getSummary($orderid);
 
         // txn log
-        $transData = array();
+        $transData = [];
         $transData['status'] = 'Pending';
         $transData['trans_id'] = $transactionid;
         $transData['order_id'] = $orderid;
-        $transData['amount'] = sprintf("%.2f",$order_summary["total"]);
-        $transData['customer_id'] = $order_summary["customer_id"];
+        $transData['amount'] = sprintf("%.2f", $orderSummary["total"]);
+        $transData['customer_id'] = $orderSummary["customer_id"];
         //$transData['gateway'] = $this->_module['name'];
         $transData['gateway'] = "Lunar_Payments";
-        $transData['notes'] = array();
+        $transData['notes'] = [];
 
         $confirmed = false;
-        if($order_summary['status']=='1') {
+        if ($orderSummary['status'] == '1') {
 
-          // set app key
-          $appkey = $this->_module['livekey_app'];
-          if($this->_module['mode']=='test') {
-            $appkey = $this->_module['testkey_app'];
-          }
+            // set app key
+            $appKey = $this->_module['app_key'];
 
-          if($appkey) {
-            require_once(__DIR__.'/api/init.php');
-            $apiClient = new \Paylike\Paylike($appkey);
+            if (!$appKey) {
+                return;
+            }
+
+            $apiClient = new \Lunar\Lunar($appKey, null, !!$_COOKIE['lunar_testmode']);
             $transactions = $apiClient->transactions();
 
             // fetch transaction
-            $res = false;
+            $apiResponse = false;
             try {
-                $res = $transactions->fetch($transactionid);
-            } catch (\Paylike\Exception\NotFound $e) {
-              // The transaction was not found
-              $transData['notes'][] = $e->message;
-            } catch (\Paylike\Exception\InvalidRequest $e) {
-              // Bad (invalid) request - see $e->getJsonBody() for the error
-              if(is_array($e->getJsonBody())) {
-                foreach ($e->getJsonBody() as $line) {
-                  $transData['notes'][] = $line['message'];
-                }
-              } else {
-                $transData['notes'][] = $e->getJsonBody();
-              }
-            } catch (\Paylike\Exception\Forbidden $e) {
-              // You are correctly authenticated but do not have access.
-              $transData['notes'][] = $e->message;
-            } catch (\Paylike\Exception\Unauthorized $e) {
-              // You need to provide credentials (an app's API key)
-              $transData['notes'][] = $e->message;
-            } catch (\Paylike\Exception\Conflict $e) {
-              // Everything you submitted was fine at the time of validation, but something changed in the meantime and came into conflict with this (e.g. double-capture).
-              $transData['notes'][] = $e->message;
-            } catch (\Paylike\Exception\ApiConnection $e) {
-              // Network error on connecting via cURL
-              $transData['notes'][] = $e->message;
+                $apiResponse = $transactions->fetch($transactionid);
             } catch (\Paylike\Exception\ApiException $e) {
-              // Unknown api error
-              $transData['notes'][] = $e->message;
+                // Unknown api error
+                $transData['notes'][] = $e->getMessage();
             }
 
+            if (empty($apiResponse)) {
+                $transData['notes'][] = $this->_lang['invalidtxn'];
+            }
+            if (isset($apiResponse['error'])) {
+                $transData['notes'][] = $this->_lang['confirmerror'];
+            }
 
+            if (!isset($apiResponse['successful'])) {
+                $transData['notes'][] = $this->_lang['notsuccessful'];
+            }
 
-            if($res) {
-              if(!$res['error']) {
-                if($res['successful']) {
-                  if(($res['amount']==$res['pendingAmount'])||($res['amount']==$res['capturedAmount'])) {
-                    if($res['test']) {
-                      $transData['notes'][] = $this->_lang['uselive'];
+            // if ('amount mismatch') {
+            //   $transData['notes'][] = $this->_lang['amountmismatch'];
+            // }
+
+            if (empty($transData['notes'])) {
+                // payment successful, set order&payment status
+                $order->paymentStatus(Order::PAYMENT_SUCCESS, $orderid);
+                $order->orderStatus(Order::ORDER_PROCESS, $orderid);
+                $transData['notes'][] = $this->_lang['paysuccess'];
+                if ($apiResponse['pendingAmount']) {
+                    $transData['status'] = 'Authorized';
+                }
+
+                // instant capture
+                if ($this->_module['capturemode'] == 'instant') {
+                    try {
+                        $cap = $transactions->capture($transactionid, [
+                            'amount' => [
+                                'currency' => $orderSummary["currency"],
+                                'decimal' => (string) $orderSummary["total"],
+                            ]
+                        ]);
+                    } catch (\Paylike\Exception\ApiException $e) {
+                        // Unknown api error
+                        $transData['notes'][] = $e->getMessage();
                     }
 
-                    // payment successful, set order&payment status
-                    $order->paymentStatus(Order::PAYMENT_SUCCESS, $orderid);
-                    $order->orderStatus(Order::ORDER_PROCESS, $orderid);
-                    $transData['notes'][] = $this->_lang['paysuccess'];
-                    if($res['pendingAmount']) { $transData['status'] = 'Authorized'; }
-
-                    // instant capture
-                    if($this->_module['capturemode']=='instant') {
-                      // include currency handling
-                      include 'currencies.php';
-
-                      $cap = array('successful'=>false,'capturedAmount'=>0);
-                      try {
-                        $cap = $transactions->capture($transactionid,array(
-                          'amount' => get_lunar_amount($order_summary["total"], $order_summary["currency"]),
-                          'descriptor' => substr(preg_replace("/[^\x20-\x7e]/", "", $GLOBALS['config']->get('config','store_name')),0,22)
-                        ));
-                      } catch (\Paylike\Exception\NotFound $e) {
-                        // The transaction was not found
-                        $transData['notes'][] = $e->message;
-                      } catch (\Paylike\Exception\InvalidRequest $e) {
-                        // Bad (invalid) request - see $e->getJsonBody() for the error
-                        if(is_array($e->getJsonBody())) {
-                          foreach ($e->getJsonBody() as $line) {
-                            $transData['notes'][] = $line['message'];
-                          }
-                        } else {
-                          $transData['notes'][] = $e->getJsonBody();
-                        }
-                      } catch (\Paylike\Exception\Forbidden $e) {
-                        // You are correctly authenticated but do not have access.
-                        $transData['notes'][] = $e->message;
-                      } catch (\Paylike\Exception\Unauthorized $e) {
-                        // You need to provide credentials (an app's API key)
-                        $transData['notes'][] = $e->message;
-                      } catch (\Paylike\Exception\Conflict $e) {
-                        // Everything you submitted was fine at the time of validation, but something changed in the meantime and came into conflict with this (e.g. double-capture).
-                        $transData['notes'][] = $e->message;
-                      } catch (\Paylike\Exception\ApiConnection $e) {
-                        // Network error on connecting via cURL
-                        $transData['notes'][] = $e->message;
-                      } catch (\Paylike\Exception\ApiException $e) {
-                        // Unknown api error
-                        $transData['notes'][] = $e->message;
-                      }
-
-                      if($cap['successful']&&$cap['capturedAmount']) {
+                    if ($cap['successful'] && $cap['capturedAmount']) {
                         $order->orderStatus(Order::ORDER_COMPLETE, $orderid);
                         $transData['status'] = 'Captured';
                         $transData['notes'][] = $this->_lang['captured'];
-                      }
                     }
-
-
-                    // unset txnid for popup payments
-                    if(isset($_SESSION['lunar_token'])) { unset($_SESSION['lunar_token']); }
-
-                    $confirmed = true;
-
-                  } else {
-                    $transData['notes'][] = $this->_lang['amountmismatch'];
-                  }
-                } else {
-                  $transData['notes'][] = $this->_lang['notsuccessful'];
                 }
-              } else {
-                $transData['notes'][] = $this->_lang['confirmerror'];
-                // @todo : need example of error object
-                //$transData['notes'][] = $res['error']->code.' : '.$res['error']->message;
-              }
-              // api response can be added to transaction log for more info
-              //$transData['notes'][] = json_encode($res);
-            } else {
-              $transData['notes'][] = $this->_lang['invalidtxn'];
+
+                $confirmed = true;
             }
 
             // Let user know, if errors on payment
-            if(!$confirmed) {
-              $GLOBALS['main']->errorMessage($this->_lang['user_payment_error']);
+            if (!$confirmed) {
+                $GLOBALS['main']->errorMessage($this->_lang['user_payment_error']);
             }
-          }
         }
 
         // transactionid already exists?
-        $trans_id	= $GLOBALS['db']->select('CubeCart_transactions', array('id'), array('trans_id' => $transactionid));
+        $trans_id  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionid]);
         if ($trans_id) {
-            $transData['notes'][]	= $this->_lang['txn_exists'];
+            $transData['notes'][]  = $this->_lang['txn_exists'];
         }
 
         // Log transaction
         $order->logTransaction($transData);
 
         // Everythings good, continue to page 'complete'
-        if($confirmed) {
-          httpredir(currentPage(array('_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'), array('_a' => 'complete')));
-          return true;
+        if ($confirmed) {
+            httpredir(currentPage(['_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'], ['_a' => 'complete']));
+            return true;
         }
 
         // Unknown errors
         $GLOBALS['main']->errorMessage($GLOBALS['language']->lunar_text['error_unknown']);
-        httpredir(currentPage(array('_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'), array('_a' => 'checkout')));
+        httpredir(currentPage(['_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'], ['_a' => 'checkout']));
         return false;
-      }
+    }
 
-      // OrderID/TxnID missing
-      $GLOBALS['main']->errorMessage($GLOBALS['language']->lunar_text['idsmissing']);
-      httpredir(currentPage(array('_g', 'type', 'cmd', 'module', 'transactionid', 'orderid'), array('_a' => 'checkout')));
-      return false;
-	}
-
-	public function form() {
-      return false;
-	}
-
+    public function form()
+    {
+        return false;
+    }
 }

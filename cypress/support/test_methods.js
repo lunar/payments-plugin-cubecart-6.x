@@ -139,15 +139,15 @@ export var TestMethods = {
                 break;
             case 'refund':
                 /** Select refund tab. */
-                cy.get('#tab_plrefund').click();
+                cy.get('#tab_lunar_refund').click();
                 /** Refund transaction. */
-                cy.get('img[rel="#confirmplrefund"]').click();
+                cy.get('img[rel="#confirm_lunar_refund"]').click();
                 break;
             case 'void':
                 /** Select void tab. */
-                cy.get('#tab_plvoid').click();
+                cy.get('#tab_lunar_void').click();
                 /** Void transaction. */
-                cy.get('img[rel="#confirmplvoid"]').click();
+                cy.get('img[rel="#confirm_lunar_void"]').click();
                 break;
         }
 

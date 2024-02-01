@@ -1,67 +1,66 @@
 <?php
-// The line below prevents direct access to this file which may lead to a path disclosure vulnerability
-if(!defined('CC_DS')) die('Access Denied');
+if (!defined('CC_DS')) die('Access Denied');
 
-
-
-$g = isset($GLOBALS['_GET']['_g'])?$GLOBALS['_GET']['_g']:'';
-$action = isset($GLOBALS['_GET']['action'])?$GLOBALS['_GET']['action']:'';
-$orderid = isset($GLOBALS['_GET']['order_id'])?$GLOBALS['_GET']['order_id']:'';
+$g = isset($GLOBALS['_GET']['_g']) ? $GLOBALS['_GET']['_g'] : '';
+$action = isset($GLOBALS['_GET']['action']) ? $GLOBALS['_GET']['action'] : '';
+$orderId = isset($GLOBALS['_GET']['order_id']) ? $GLOBALS['_GET']['order_id'] : '';
 
 // on order edit page
-if($g=='orders'&&$action=='edit'&&$orderid) {
-  // paid with Lunar
-  $selsummary = $GLOBALS['db']->select('CubeCart_order_summary','gateway',array('cart_order_id'=>$orderid));
-  if($selsummary[0]['gateway']=='Lunar Payments'||$selsummary[0]['gateway']=='Lunar_Payments') {
-    // display only if = Captured
-    $txns = $GLOBALS['db']->select('CubeCart_transactions', false, array('order_id'=>$orderid,'gateway'=>'Lunar_Payments'), array('time'=>'DESC'));
-    if ($txns) {
+if ($g != 'orders' && $action != 'edit' && !$orderId) {
+    return;
+}
 
-      // init module lang
-      $modlang = $GLOBALS['language']->getStrings('lunar_text');
+// paid with Lunar
+$orderSummary = $GLOBALS['db']->select('CubeCart_order_summary', 'gateway', array('cart_order_id' => $orderId));
 
+if ($orderSummary[0]['gateway'] != 'Lunar Payments' || $orderSummary[0]['gateway'] != 'Lunar_Payments') {
+    return;
+}
 
-      // display void tab only when = Authorized
-      if($txns[0]['status']=='Authorized') {
-        $voidtab = array(
-          'name' => $modlang['void'],
-          'target' => '#plvoid',
-          'url' => '',
-          'accesskey' => '',
-          'notify' => 0,
-          'a_target' => '_self',
-          'tab_id' => 'tab_plvoid'
-        );
-        $tabs[]=$voidtab;
-      }
+// display only if Captured
+$txns = $GLOBALS['db']->select('CubeCart_transactions', false, ['order_id' => $orderId, 'gateway' => 'Lunar_Payments'], ['time' => 'DESC']);
 
-      // display refund tab only when = Captured
-      if($txns[0]['status']=='Captured') {
-        $refundtab = array(
-          'name' => $modlang['refund'],
-          'target' => '#plrefund',
-          'url' => '',
-          'accesskey' => '',
-          'notify' => 0,
-          'a_target' => '_self',
-          'tab_id' => 'tab_plrefund'
-        );
-        $tabs[]=$refundtab;
-      }
+if (!$txns) {
+    return;
+}
 
+$modLang = $GLOBALS['language']->getStrings('lunar_text');
 
+// display void tab only when = Authorized
+if ($txns[0]['status'] == 'Authorized') {
+    $voidtab = array(
+        'name' => $modLang['void'],
+        'target' => '#lunar_void',
+        'url' => '',
+        'accesskey' => '',
+        'notify' => 0,
+        'a_target' => '_self',
+        'tab_id' => 'tab_lunar_void'
+    );
+    $tabs[] = $voidtab;
+}
 
-    }
-  }
+// display refund tab only when = Captured
+if ($txns[0]['status'] == 'Captured') {
+    $refundtab = array(
+        'name' => $modLang['refund'],
+        'target' => '#lunar_refund',
+        'url' => '',
+        'accesskey' => '',
+        'notify' => 0,
+        'a_target' => '_self',
+        'tab_id' => 'tab_lunar_refund'
+    );
+    $tabs[] = $refundtab;
 }
 
 // clear cache when Lunar settings are saved
-if($g=='plugins') {
-  if(isset($_GET['module'])) {
-     if ($_GET['module']=='Lunar_Payments') {
-       if(isset($_POST['module']['status'])) {
-         $GLOBALS['cache']->clear();
-       }
-     }
-  }
+if ($g == 'plugins') {
+    if (isset($_GET['module'])) {
+        if ($_GET['module'] == 'Lunar_Payments') {
+            if (isset($_POST['module']['status'])) {
+                $GLOBALS['cache']->clear();
+            }
+        }
+    }
 }
