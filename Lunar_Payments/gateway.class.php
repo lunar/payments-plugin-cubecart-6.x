@@ -2,14 +2,13 @@
 
 class Gateway
 {
-    private $_config;
+    // private $_config;
     private $_module;
     private $_lang;
-    private $_result_message;
 
     public function __construct($module = false, $basket = false)
     {
-        $this->_config  = $GLOBALS['config']->get('config');
+        // $this->_config  = $GLOBALS['config']->get('config');
         $this->_module  = $module;
         $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR . '/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
@@ -49,6 +48,7 @@ class Gateway
         }
 
         $orderid = sanitizeVar($_GET['orderid']);
+
         $transactionid = sanitizeVar($_GET['transactionid']);
 
         $order = Order::getInstance();
@@ -76,13 +76,12 @@ class Gateway
             }
 
             $apiClient = new \Lunar\Lunar($appKey, null, !!$_COOKIE['lunar_testmode']);
-            $transactions = $apiClient->transactions();
 
             // fetch transaction
             $apiResponse = false;
             try {
-                $apiResponse = $transactions->fetch($transactionid);
-            } catch (\Paylike\Exception\ApiException $e) {
+                $apiResponse = $apiClient->payments()->fetch($transactionid);
+            } catch (\Lunar\Exception\ApiException $e) {
                 // Unknown api error
                 $transData['notes'][] = $e->getMessage();
             }
@@ -112,7 +111,7 @@ class Gateway
                 }
 
                 // instant capture
-                if ($this->_module['capturemode'] == 'instant') {
+                if ($this->_module['capture_mode'] == 'instant') {
                     try {
                         $cap = $transactions->capture($transactionid, [
                             'amount' => [
@@ -120,7 +119,7 @@ class Gateway
                                 'decimal' => (string) $orderSummary["total"],
                             ]
                         ]);
-                    } catch (\Paylike\Exception\ApiException $e) {
+                    } catch (\Lunar\Exception\ApiException $e) {
                         // Unknown api error
                         $transData['notes'][] = $e->getMessage();
                     }

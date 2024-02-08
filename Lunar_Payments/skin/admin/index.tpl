@@ -66,18 +66,18 @@
             </div>
 
             <div>
-                <label for="shopname">{$LANG.lunar_text.shopname}</label>
+                <label for="shop_name">{$LANG.lunar_text.shop_name}</label>
                 <span>
-                    <input type="text" name="module[shopname]" value="{$MODULE.shopname}" class="textbox" size="30"/>
+                    <input type="text" name="module[shop_name]" value="{$MODULE.shop_name}" class="textbox" size="30"/>
                 </span>
             </div>
 
             <div>
-                <label for="scope">{$LANG.lunar_text.capturemode}</label>
+                <label for="scope">{$LANG.lunar_text.capture_mode}</label>
                 <span>
-                    <select name="module[capturemode]">
-                        <option value="instant" {$SELECT_capturemode_instant}>{$LANG.lunar_text.instant}</option>
-                        <option value="delayed" {$SELECT_capturemode_delayed}>{$LANG.lunar_text.delayed}</option>
+                    <select name="module[capture_mode]">
+                        <option value="instant" {$SELECT_capture_mode_instant}>{$LANG.lunar_text.instant}</option>
+                        <option value="delayed" {$SELECT_capture_mode_delayed}>{$LANG.lunar_text.delayed}</option>
                     </select>
                 </span>
             </div>
