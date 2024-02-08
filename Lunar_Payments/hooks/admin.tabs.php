@@ -1,9 +1,9 @@
 <?php
 if (!defined('CC_DS')) die('Access Denied');
 
-$g = isset($GLOBALS['_GET']['_g']) ? $GLOBALS['_GET']['_g'] : '';
-$action = isset($GLOBALS['_GET']['action']) ? $GLOBALS['_GET']['action'] : '';
-$orderId = isset($GLOBALS['_GET']['order_id']) ? $GLOBALS['_GET']['order_id'] : '';
+$g = isset($GLOBALS['_GET']['_g']) ? $GLOBALS['_GET']['_g'] : null;
+$action = isset($GLOBALS['_GET']['action']) ? $GLOBALS['_GET']['action'] : null;
+$orderId = isset($GLOBALS['_GET']['order_id']) ? $GLOBALS['_GET']['order_id'] : null;
 
 // on order edit page
 if ($g != 'orders' && $action != 'edit' && !$orderId) {

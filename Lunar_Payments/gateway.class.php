@@ -1,5 +1,9 @@
 <?php
 
+if (!class_exists('\\Lunar\\Lunar')) {
+    require_once('vendor/autoload.php');
+}
+
 class Gateway
 {
     // private $_config;
