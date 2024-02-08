@@ -9,50 +9,52 @@ if ($record['cart_order_id']) {
         // get latest transaction status, authorized|captured
         $txns = $GLOBALS['db']->select('CubeCart_transactions', false, ['order_id' => $record['cart_order_id'], 'gateway' => 'Lunar_Payments'], ['time' => 'DESC']);
 
-        // if authorized, attempt to capture
-        if ($txns && $txns[0]['status'] == 'Authorized') {
-            // we have txnid
-            if ($txns[0]['trans_id']) {
-                // load module vars
-                $modcfg = $GLOBALS['config']->get('Lunar_Payments');
-                $modlang = $GLOBALS['language']->getStrings('lunar_text');
-
-                // create a new transaction log
-                $newlog = $txns[0];
-                unset($newlog['id']);
-                $newlog['notes'] = [];
-
-                // set app key
-                $appkey = $modcfg['app_key'];
-
-                $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
-
-                $order = Order::getInstance();
-                try {
-                    $res = $apiClient->payments()->capture(
-                        $txns[0]['trans_id'],
-                        [
-                            'amount' => [
-                                'currency' => $order->getSummary($record['cart_order_id'])["currency"],
-                                'decimal' => (string) $txns[0]['amount'],
-                            ]
-                        ]
-                    );
-                } catch (\Lunar\Exception\ApiException $e) {
-                    // Unknown api error
-                    $newlog['notes'][] = $e->getMessage();
-                }
-
-                if ($res['successful']) {
-                    $newlog['notes'][] = $modlang['captured'];
-                    $GLOBALS['main']->successMessage($modlang['captured']);
-                    $newlog['status'] = 'Captured';
-                }
-
-                //save new log
-                $order->logTransaction($newlog);
-            }
+        if (empty($txns) || $txns[0]['status'] !== 'Authorized') {
+            return;
         }
+
+        if (empty($txns[0]['trans_id'])) {
+            return;
+        }
+
+        // load module vars
+        $modcfg = $GLOBALS['config']->get('Lunar_Payments');
+        $modlang = $GLOBALS['language']->getStrings('lunar_text');
+
+        // create a new transaction log
+        $newlog = $txns[0];
+        unset($newlog['id']);
+
+        $newlog['notes'] = [];
+
+        // set app key
+        $appkey = $modcfg['app_key'];
+
+        $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
+
+        $order = Order::getInstance();
+        try {
+            $res = $apiClient->payments()->capture(
+                $txns[0]['trans_id'],
+                [
+                    'amount' => [
+                        'currency' => $order->getSummary($record['cart_order_id'])["currency"],
+                        'decimal' => (string) $txns[0]['amount'],
+                    ]
+                ]
+            );
+        } catch (\Lunar\Exception\ApiException $e) {
+            $newlog['notes'][] = $e->getMessage();
+        }
+
+        if ($res['successful']) {
+            $newlog['notes'][] = $modlang['captured'];
+            $GLOBALS['main']->successMessage($modlang['captured']);
+            $newlog['status'] = 'Captured';
+        }
+
+        //save new log
+        $order->logTransaction($newlog);
     }
 }
 
@@ -63,49 +65,52 @@ if (isset($GLOBALS['_POST']['confirm_lunar_void']) && $GLOBALS['_POST']['confirm
     $txns = $GLOBALS['db']->select('CubeCart_transactions', false, ['order_id' => $record['cart_order_id'], 'gateway' => 'Lunar_Payments'], ['time' => 'DESC']);
 
     // attempt to refund only when = Authorized
-    if ($txns && $txns[0]['status'] == 'Authorized') {
-        // load module vars
-        $modcfg = $GLOBALS['config']->get('Lunar_Payments');
-        $modlang = $GLOBALS['language']->getStrings('lunar_text');
-
-        // create a new transaction log
-        $newlog = $txns[0];
-        unset($newlog['id']);
-        $newlog['notes'] = [];
-
-        // set app key
-        $appkey = $modcfg['app_key'];
-
-        $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
-
-        $order = Order::getInstance();
-        try {
-            $void = $apiClient->payments()->void(
-                $txns[0]['trans_id'],
-                [
-                    'amount' => [
-                        'currency' => $order->getSummary($record['cart_order_id'])["currency"],
-                        'decimal' => (string) $txns[0]['amount'],
-                    ]
-                ]
-            );
-        } catch (\Lunar\Exception\ApiException $e) {
-            // Unknown api error
-            $newlog['notes'][] = $e->getMessage();
-        }
-
-        if ($void['successful']) {
-            $newlog['notes'][] = $modlang['voided'];
-            $GLOBALS['main']->successMessage($modlang['voided']);
-            $newlog['status'] = 'Voided';
-
-            // set new status on order that has been voided
-            $order->orderStatus(Order::ORDER_CANCELLED, $record['cart_order_id']);
-        }
-
-        //save new log
-        $order->logTransaction($newlog);
+    if (empty($txns) || $txns[0]['status'] !== 'Authorized') {
+        return;
     }
+
+    // load module vars
+    $modcfg = $GLOBALS['config']->get('Lunar_Payments');
+    $modlang = $GLOBALS['language']->getStrings('lunar_text');
+
+    // create a new transaction log
+    $newlog = $txns[0];
+    unset($newlog['id']);
+
+    $newlog['notes'] = [];
+
+    // set app key
+    $appkey = $modcfg['app_key'];
+
+    $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
+
+    $order = Order::getInstance();
+    try {
+        $void = $apiClient->payments()->void(
+            $txns[0]['trans_id'],
+            [
+                'amount' => [
+                    'currency' => $order->getSummary($record['cart_order_id'])["currency"],
+                    'decimal' => (string) $txns[0]['amount'],
+                ]
+            ]
+        );
+    } catch (\Lunar\Exception\ApiException $e) {
+        // Unknown api error
+        $newlog['notes'][] = $e->getMessage();
+    }
+
+    if ($void['successful']) {
+        $newlog['notes'][] = $modlang['voided'];
+        $GLOBALS['main']->successMessage($modlang['voided']);
+        $newlog['status'] = 'Voided';
+
+        // set new status on order that has been voided
+        $order->orderStatus(Order::ORDER_CANCELLED, $record['cart_order_id']);
+    }
+
+    //save new log
+    $order->logTransaction($newlog);
 }
 
 /* Refund block */
@@ -115,48 +120,51 @@ if (isset($GLOBALS['_POST']['confirm_lunar_refund']) && $GLOBALS['_POST']['confi
     $txns = $GLOBALS['db']->select('CubeCart_transactions', false, ['order_id' => $record['cart_order_id'], 'gateway' => 'Lunar_Payments'], ['time' => 'DESC']);
 
     // attempt to refund only when = Captured
-    if ($txns && $txns[0]['status'] == 'Captured') {
-        // load module vars
-        $modcfg = $GLOBALS['config']->get('Lunar_Payments');
-        $modlang = $GLOBALS['language']->getStrings('lunar_text');
-
-        // create a new transaction log
-        $newlog = $txns[0];
-        unset($newlog['id']);
-        $newlog['notes'] = [];
-
-        // set app key
-        $appkey = $modcfg['app_key'];
-
-        $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
-
-        $order = Order::getInstance();
-        try {
-            $rfd = $apiClient->payments()->refund(
-                $txns[0]['trans_id'],
-                [
-                    'amount' => [
-                        'currency' => $order->getSummary($record['cart_order_id'])["currency"],
-                        'decimal' => (string) $txns[0]['amount'],
-                    ]
-                ]
-            );
-        } catch (\Lunar\Exception\ApiException $e) {
-            // Unknown api error
-            $newlog['notes'][] = $e->getMessage();
-        }
-
-        if ($rfd['successful']) {
-            $newlog['notes'][] = $modlang['refunded'];
-            $GLOBALS['main']->successMessage($modlang['refunded']);
-            $newlog['status'] = 'Refunded';
-
-            // set new status on order that has been refunded
-            // 70 is an arbitrarily chosen order status ID, so as not to interfere with any other status.
-            $order->orderStatus(70, $record['cart_order_id']);
-        }
-
-        //save new log
-        $order->logTransaction($newlog);
+    if (empty($txns) || $txns[0]['status'] !== 'Captured') {
+        return;
     }
+
+    // load module vars
+    $modcfg = $GLOBALS['config']->get('Lunar_Payments');
+    $modlang = $GLOBALS['language']->getStrings('lunar_text');
+
+    // create a new transaction log
+    $newlog = $txns[0];
+    unset($newlog['id']);
+
+    $newlog['notes'] = [];
+
+    // set app key
+    $appkey = $modcfg['app_key'];
+
+    $apiClient = new \Lunar\Lunar($appkey, null, !!$_COOKIE['lunar_testmode']);
+
+    $order = Order::getInstance();
+    try {
+        $rfd = $apiClient->payments()->refund(
+            $txns[0]['trans_id'],
+            [
+                'amount' => [
+                    'currency' => $order->getSummary($record['cart_order_id'])["currency"],
+                    'decimal' => (string) $txns[0]['amount'],
+                ]
+            ]
+        );
+    } catch (\Lunar\Exception\ApiException $e) {
+        // Unknown api error
+        $newlog['notes'][] = $e->getMessage();
+    }
+
+    if ($rfd['successful']) {
+        $newlog['notes'][] = $modlang['refunded'];
+        $GLOBALS['main']->successMessage($modlang['refunded']);
+        $newlog['status'] = 'Refunded';
+
+        // set new status on order that has been refunded
+        // 70 is an arbitrarily chosen order status ID, so as not to interfere with any other status.
+        $order->orderStatus(70, $record['cart_order_id']);
+    }
+
+    //save new log
+    $order->logTransaction($newlog);
 }
