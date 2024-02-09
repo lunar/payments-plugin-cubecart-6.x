@@ -81,13 +81,10 @@ class Gateway
             $this->redirectBackWithNotification($this->_lang['idsmissing']);
         }
 
-        // $orderId = sanitizeVar($_GET['orderid']);
-
         $transactionId = $this->getPaymentIntent();
 
         $order = Order::getInstance();
         $orderSummary = $order->getSummary($orderId);
-
 
         $transactionData = [];
         $transactionData['status'] = 'Authorized';
@@ -103,8 +100,8 @@ class Gateway
             return;
         }
 
-        $trans_id  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
-        if ($trans_id) {
+        $transactionId  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
+        if ($transactionId) {
             $this->redirectBackWithNotification($this->_lang['txn_exists']);
         }
 
@@ -357,6 +354,7 @@ class Gateway
 
 
     public function form() {}
+    // public function form() { return false; }
     public function repeatVariables() {}
 	public function fixedVariables() {}
 }

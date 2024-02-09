@@ -15,7 +15,8 @@
   </info>
 
   <hooks>
-    <hook trigger="class.cubecart.construct.callback.gateway" enabled="1"><![CDATA[Callback Handler]]></hook>
+    <hook trigger="class.cubecart.display_gateways" enabled="1"><![CDATA[Display payment method on checkout]]></hook>
+	<hook trigger="class.cubecart.construct.callback.gateway" enabled="1"><![CDATA[Callback Handler]]></hook>
     <hook trigger="admin.order.index.post_process" enabled="1"><![CDATA[Capture Payment when Order Status is Complete]]></hook>
     <hook trigger="admin.order.index.display" enabled="1"><![CDATA[Refund/Void Button for Orders]]></hook>
     <hook trigger="admin.tabs" enabled="1"><![CDATA[Refund/Void Tab for Lunar Orders]]></hook>

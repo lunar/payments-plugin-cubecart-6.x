@@ -2,6 +2,7 @@
 <definitions version="1.0">
     <group name="lunar_text">
         <string name="setup_lunar"><![CDATA[Configure Lunar]]></string>
+        <string name="checkout_name"><![CDATA[Payment name (displayed to customers)]]></string>
         <string name="app_key"><![CDATA[App Key]]></string>
         <string name="public_key"><![CDATA[Public Key]]></string>
         <string name="logo_url"><![CDATA[Logo URL]]></string>

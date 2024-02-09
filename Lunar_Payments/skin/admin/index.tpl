@@ -39,21 +39,27 @@
         <fieldset>
             <legend>{$LANG.lunar_text.setup_lunar}</legend>
             <div>
+                <label for="checkout_name">{$LANG.lunar_text.checkout_name}</label>
+                <span>
+                    <input name="module[checkout_name]" id="checkout_name" class="textbox" type="text" value="{$MODULE.checkout_name}"/>
+                </span>
+            </div>
+            <div>
                 <label for="app_key">{$LANG.lunar_text.app_key}</label>
                 <span>
-                    <input type="text" name="module[app_key]" value="{$MODULE.app_key}" required class="textbox" size="30"/>
+                    <input type="text" name="module[app_key]" value="{$MODULE.app_key}" required class="textbox"/>
                 </span>
             </div>
             <div>
                 <label for="public_key">{$LANG.lunar_text.public_key}</label>
                 <span>
-                    <input type="text" name="module[public_key]" value="{$MODULE.public_key}" required class="textbox" size="30"/>
+                    <input type="text" name="module[public_key]" value="{$MODULE.public_key}" required class="textbox"/>
                 </span>
             </div>
             <div>
                 <label for="logo_url">{$LANG.lunar_text.logo_url}</label>
                 <span>
-                    <input type="text" name="module[logo_url]" value="{$MODULE.logo_url}" required class="textbox" size="30"/>
+                    <input type="text" name="module[logo_url]" value="{$MODULE.logo_url}" required class="textbox"/>
                 </span>
             </div>
 
@@ -61,14 +67,14 @@
                 <label for="configuration_id">{$LANG.lunar_text.configuration_id}</label>
                 <span>
                     <!-- @TODO adjust check for required attr -->
-                    <input type="text" name="module[configuration_id]" value="{$MODULE.configuration_id}" {if false}required{/if} class="textbox" size="30"/>
+                    <input type="text" name="module[configuration_id]" value="{$MODULE.configuration_id}" {if false}required{/if} class="textbox"/>
                 </span>
             </div>
 
             <div>
                 <label for="shop_name">{$LANG.lunar_text.shop_name}</label>
                 <span>
-                    <input type="text" name="module[shop_name]" value="{$MODULE.shop_name}" class="textbox" size="30"/>
+                    <input type="text" name="module[shop_name]" value="{$MODULE.shop_name}" class="textbox"/>
                 </span>
             </div>
 
@@ -82,12 +88,6 @@
                 </span>
             </div>
 
-            <div>
-                <label for="description">{$LANG.common.description}</label>
-                <span>
-                    <input name="module[description]" id="description" class="textbox" type="text" value="{$MODULE.description}"/>
-                </span>
-            </div>
         </fieldset>
     </div>
 
