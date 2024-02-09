@@ -76,8 +76,8 @@
                 <label for="scope">{$LANG.lunar_text.capture_mode}</label>
                 <span>
                     <select name="module[capture_mode]">
-                        <option value="instant" {$SELECT_capture_mode_instant}>{$LANG.lunar_text.instant}</option>
                         <option value="delayed" {$SELECT_capture_mode_delayed}>{$LANG.lunar_text.delayed}</option>
+                        <option value="instant" {$SELECT_capture_mode_instant}>{$LANG.lunar_text.instant}</option>
                     </select>
                 </span>
             </div>
