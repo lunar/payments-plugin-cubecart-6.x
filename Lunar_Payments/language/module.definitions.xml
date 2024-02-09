@@ -14,7 +14,7 @@
 
         <!-- messages -->
         <string name="invalid_txn"><![CDATA[Invalid Transaction ID]]></string>
-        <string name="txn_exists"><![CDATA[This Transaction ID has been processed before.]]></string>
+        <string name="txn_exists"><![CDATA[This Transaction has been processed before.]]></string>
         <string name="idsmissing"><![CDATA[Required order id is missing. Please contact administrator.]]></string>
         <string name="confirmerror"><![CDATA[Confirmation process contains errors.]]></string>
         <string name="notsuccessful"><![CDATA[Payment confirmation was not successful]]></string>

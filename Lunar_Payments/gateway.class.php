@@ -9,7 +9,6 @@ class Gateway
     const REMOTE_URL = 'https://pay.lunar.money/?id=';
     const TEST_REMOTE_URL = 'https://hosted-checkout-git-develop-lunar-app.vercel.app/?id=';
 
-    // private $_config;
     private $_module;
     private $_lang;
     private $_basket;
@@ -26,12 +25,14 @@ class Gateway
 
     public function __construct($module = false, $basket = false)
     {
-        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR . '/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
-        // $this->_config  = $GLOBALS['config']->get('config');
+        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
+        $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
         $this->_module  = $module;
-        $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
-		$this->_basket	= $basket ?: $GLOBALS['cart']->basket;
+
+        $basket = $basket ?: $GLOBALS['cart']->basket;
+        $this->_basket	= $basket;
+
         $this->testMode = !!$_COOKIE['lunar_testmode'];
 
         $this->apiClient = new \Lunar\Lunar($this->_module['app_key'], null, $this->testMode);
@@ -40,7 +41,7 @@ class Gateway
     public function transfer()
     {
         return [
-            'action'  => 'index.php?_g=rm&type=plugins&cmd=call&module=Lunar_Payments',
+            'action'  => 'index.php?_g=rm&type=plugins&cmd=process&module=Lunar_Payments',
             'method'  => 'post',
             'target'  => '_self',
             'submit'  => 'auto',
@@ -50,7 +51,7 @@ class Gateway
     /**
      * REDIRECT
      */
-    public function call()
+    public function process()
     {
         $this->setArgs();
 
@@ -58,30 +59,29 @@ class Gateway
             $paymentIntentId = $this->apiClient->payments()->create($this->args);
             $this->savePaymentIntent($paymentIntentId);
         } catch(Lunar\Exception\ApiException $e) {
-            $this->redirectBackWithNotification($e->getMessage());
+            $this->displayErrorMessage($e->getMessage());
         }
 
         if (! $paymentIntentId) {
-            $this->redirectBackWithNotification('An error occurred creating payment intent. 
+            $this->displayErrorMessage('An error occurred creating payment intent. 
                 Please try again or contact system administrator.'
             );
         }
 
-        httpredir(($this->testMode ? self::TEST_REMOTE_URL : self::REMOTE_URL) . $paymentIntentId);
-
-        
+        httpredir(($this->testMode ? self::TEST_REMOTE_URL : self::REMOTE_URL) . $paymentIntentId);        
     }
 
     /**
      * CALLBACK
      */
-    public function process()
+    public function call()
     {
         if (empty($orderId = sanitizeVar($_GET['orderid']))) {
-            $this->redirectBackWithNotification($this->_lang['idsmissing']);
+            $this->displayErrorMessage($this->_lang['idsmissing']);
         }
 
         $transactionId = $this->getPaymentIntent();
+        // $transactionId = '5ebc58fb-edf9-52c3-b10b-f9b5e4a90581';
 
         $order = Order::getInstance();
         $orderSummary = $order->getSummary($orderId);
@@ -92,30 +92,29 @@ class Gateway
         $transactionData['order_id'] = $orderId;
         $transactionData['amount'] = sprintf("%.2f", $orderSummary["total"]);
         $transactionData['customer_id'] = $orderSummary["customer_id"];
-        //$transData['gateway'] = $this->_module['name'];
         $transactionData['gateway'] = "Lunar_Payments";
         $transactionData['notes'] = [];
 
         if ($orderSummary['status'] != '1') {
-            return;
+            $this->displayErrorMessage($this->_lang['txn_exists']);
         }
 
-        $transactionId  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
-        if ($transactionId) {
-            $this->redirectBackWithNotification($this->_lang['txn_exists']);
+        $transaction_exists  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
+        if ($transaction_exists) {
+            $this->displayErrorMessage($this->_lang['txn_exists']);
         }
 
         try {
             $apiResponse = $this->apiClient->payments()->fetch($transactionId);
         } catch (\Lunar\Exception\ApiException $e) {
-            $this->redirectBackWithNotification($e->getMessage());
+            $this->displayErrorMessage($e->getMessage());
         }
 
         if (empty($apiResponse)) {
-            $this->redirectBackWithNotification($this->_lang['invalidtxn']);
+            $this->displayErrorMessage($this->_lang['invalidtxn']);
         }
         if (empty($apiResponse['authorisationCreated'])) {
-            $this->redirectBackWithNotification($this->_lang['confirmerror']);
+            $this->displayErrorMessage($this->_lang['confirmerror']);
         }
 
         $order->paymentStatus(Order::PAYMENT_SUCCESS, $orderId);
@@ -135,7 +134,7 @@ class Gateway
                 $transactionData['notes'][] = $e->getMessage();
             }
 
-            if (!empty($apiResponse) {
+            if (!empty($apiResponse)) {
                 if ('completed' === $apiResponse['captureState']) {
                     $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
                     $transactionData['status'] = 'Captured';
@@ -150,22 +149,23 @@ class Gateway
 
         $order->logTransaction($transactionData);
 
-        httpredir(CC_STORE_URL.'index.php?_a=complete');
-        // return true;
+        setcookie($this->intentKey, null, 1);
+
+        httpredir(CC_STORE_URL.'/index.php?_a=complete');
     }
 
     /**
      * 
      */
     private function setArgs()
-    { 
-        $this->currencyCode = $GLOBALS['config']->get('config','default_currency');
-        if ($GLOBALS['session']->has('currency', 'client')) {
-            $this->currencyCode = $GLOBALS['session']->get('currency', 'client');
-        }
+    {
+        $orderClass = Order::getInstance();
+        $orderSummary = $orderClass->getSummary($this->_basket['cart_order_id']);
 
-        $address = $this->_basket['billing_address']; // default billing address, true for all addresses
-        $addressLine = implode(', ', [$address['line1'], $address['line2'], $address['town'], $address['state'], $address['postcode'], $address['country']]);
+        $this->currencyCode = $orderSummary['currency'];
+
+        $address = implode(', ', [$orderSummary['line1'], $orderSummary['line2'], $orderSummary['town'], 
+            $orderSummary['state'], $orderSummary['postcode'], $orderSummary['country']]);
 
         $this->args = [
             'integration' => [
@@ -175,16 +175,16 @@ class Gateway
             ],
             'amount' => [
                 'currency' => $this->currencyCode,
-                'decimal' => (string) $this->_basket['total'],
+                'decimal' => (string) $orderSummary['total'],
             ],
             'custom' => [
-                'orderId' => $this->_basket['cart_order_id'],
+                'orderId' => $orderSummary['cart_order_id'],
                 'products' => $this->getFormattedProducts(),
                 'customer' => [
-                    'name' => $address['first_name']." ".$address['last_name'],
-                    'email' => $address['email'],
-                    'phoneNo' => $address['phone'],
-                    'address' => $addressLine,
+                    'name' => $orderSummary['first_name'].' '.$orderSummary['last_name'],
+                    'email' => $orderSummary['email'],
+                    'phoneNo' => $orderSummary['phone'],
+                    'address' => $address,
                     'ip' => get_ip_address(),
                 ],
                 'platform' => [
@@ -193,8 +193,8 @@ class Gateway
                 ],
                 'lunarPluginVersion' => $this->getPluginVersion(),
             ],
-            'redirectUrl' => CC_STORE_URL.'index.php?_g=rm&type=plugins&cmd=process&module=Lunar_Payments'
-                                .'&orderid='.$this->_basket['cart_order_id'],
+            'redirectUrl' => CC_STORE_URL.'/index.php?_g=rm&type=plugins&cmd=call&module=Lunar_Payments'
+                                .'&orderid='.$orderSummary['cart_order_id'],
             'preferredPaymentMethod' => $this->paymentMethod,
         ];
 
@@ -213,17 +213,17 @@ class Gateway
     /**
      * 
      */
-    private function savePaymentIntent($paymentIntentId)
+    public function savePaymentIntent($paymentIntentId)
     {
-        $this->_basket[$this->intentKey] = $paymentIntentId;
+        return setcookie($this->intentKey, $paymentIntentId, 0, '', '', false, true);
     }
 
     /**
      * 
      */
-    private function getPaymentIntent()
+    public function getPaymentIntent()
     {
-        return $this->_basket[$this->intentKey];
+        return isset($_COOKIE[$this->intentKey]) ? $_COOKIE[$this->intentKey] : null;
     }
 
     /**
@@ -290,71 +290,22 @@ class Gateway
     /**
      * 
      */
-    private function redirectBackWithNotification(string $errorMessage)
+    private function displayErrorMessage(string $errorMessage)
     {
-        $GLOBALS['main']->errorMessage($errorMessage);
-        httpredir(CC_STORE_URL.'index.php?_a=checkout');
+        setcookie($this->intentKey, null, 1);
+
+        echo sanitizeVar($errorMessage);
+        exit(1);
+
+        // $GLOBALS['smarty']->assign('lunar', [
+        //     'error' => $errorMessage,
+        //     'return_url' => CC_STORE_URL.'/index.php?_a=checkout',
+        // ]);
+
+        // httpredir(CC_STORE_URL.'/index.php?_a=checkout');
     }
 
-
-    // /**
-    //  * SET ARGS
-    //  */
-    // private function setArgs()
-    // {
-    //     $orderClass = Order::getInstance();
-    //     $orderSummary = $orderClass->getSummary($this->_basket['cart_order_id']);
-
-    //     $this->currencyCode = $orderSummary['currency'];
-
-    //     $address = implode(', ', [$orderSummary['line1'], $orderSummary['line2'], $orderSummary['town'], 
-    //         $orderSummary['state'], $orderSummary['postcode'], $orderSummary['country']]);
-
-    //     $this->args = [
-    //         'integration' => [
-    //             'key' => $this->_module['public_key'],
-    //             'name' => $this->_module['shop_name'],
-    //             'logo' => $this->_module['logo_url'],
-    //         ],
-    //         'amount' => [
-    //             'currency' => $this->currencyCode,
-    //             'decimal' => (string) $orderSummary['total'],
-    //         ],
-    //         'custom' => [
-    //             'orderId' => $orderSummary['cart_order_id'],
-    //             'products' => $this->getFormattedProducts(),
-    //             'customer' => [
-    //                 'name' => $orderSummary['first_name'].' '.$orderSummary['last_name'],
-    //                 'email' => $orderSummary['email'],
-    //                 'phoneNo' => $orderSummary['phone'],
-    //                 'address' => $address,
-    //                 'ip' => get_ip_address(),
-    //             ],
-    //             'platform' => [
-    //                 'name' => 'CubeCart',
-    //                 'version' => CC_VERSION,
-    //             ],
-    //             'lunarPluginVersion' => $this->getPluginVersion(),
-    //         ],
-    //         'redirectUrl' => '',
-    //         'preferredPaymentMethod' => $this->paymentMethod,
-    //     ];
-
-    //     if ($this->_module['configuration_id']) {
-    //         $this->args['mobilePayConfiguration'] = [
-    //             'configurationID' => $this->_module['configuration_id'],
-    //             'logo' => $this->_module['logo_url'],
-    //         ];
-    //     }
-
-    //     if ($this->testMode) {
-    //         $this->args['test'] = $this->getTestObject();
-    //     }
-    // }
-
-
     public function form() {}
-    // public function form() { return false; }
     public function repeatVariables() {}
 	public function fixedVariables() {}
 }
