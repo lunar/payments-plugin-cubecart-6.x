@@ -122,7 +122,7 @@ class Gateway
 
         $transactionData['notes'][] = $this->_lang['paysuccess'];
 
-        if ($this->_module['capture_mode'] == 'instant') {
+        if ('instant' == $this->_module['capture_mode']) {
             try {
                 $apiResponse = $this->apiClient->payments()->capture($transactionId, [
                     'amount' => [
@@ -134,7 +134,7 @@ class Gateway
                 $transactionData['notes'][] = $e->getMessage();
             }
 
-            if (!empty($apiResponse)) {
+            if (isset($apiResponse['captureState'])) {
                 if ('completed' === $apiResponse['captureState']) {
                     $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
                     $transactionData['status'] = 'Captured';

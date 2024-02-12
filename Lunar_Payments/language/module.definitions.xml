@@ -7,7 +7,7 @@
         <string name="public_key"><![CDATA[Public Key]]></string>
         <string name="logo_url"><![CDATA[Logo URL]]></string>
         <string name="configuration_id"><![CDATA[Configuration ID]]></string>
-        <string name="shop_name"><![CDATA[Shop name  (leave blank to use current shop name)]]></string>
+        <string name="shop_name"><![CDATA[Shop name]]></string>
         <string name="capture_mode"><![CDATA[Capture Mode]]></string>
         <string name="instant"><![CDATA[Instant]]></string>
         <string name="delayed"><![CDATA[Delayed]]></string>

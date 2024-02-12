@@ -74,7 +74,7 @@
             <div>
                 <label for="shop_name">{$LANG.lunar_text.shop_name}</label>
                 <span>
-                    <input type="text" name="module[shop_name]" value="{$MODULE.shop_name}" class="textbox"/>
+                    <input type="text" name="module[shop_name]" value="{if $MODULE.shop_name}{$MODULE.shop_name}{else}{$CONFIG['store_title']}{/if}" class="textbox"/>
                 </span>
             </div>
 
