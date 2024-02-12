@@ -13,6 +13,7 @@
         <string name="delayed"><![CDATA[Delayed]]></string>
 
         <!-- messages -->
+        <string name="error_create_intent"><![CDATA[An error occurred creating payment intent. Please try again or contact system administrator.]]></string>
         <string name="invalid_txn"><![CDATA[Invalid Transaction ID]]></string>
         <string name="txn_exists"><![CDATA[This Transaction has been processed before.]]></string>
         <string name="idsmissing"><![CDATA[Required order id is missing. Please contact administrator.]]></string>
@@ -22,14 +23,19 @@
         <string name="user_payment_error"><![CDATA[We were unable to confirm your payment. Please contact administrator for more information.]]></string>
         <string name="error_unknown"><![CDATA[There were errors during checkout. Please contact administrator.]]></string>
         <string name="paysuccess"><![CDATA[Payment successful and confirmed.]]></string>
-        <string name="captured"><![CDATA[Successfully captured authorized amount on Lunar.]]></string>
+        <string name="captured"><![CDATA[Successfully CAPTURED authorized amount on Lunar.]]></string>
         <string name="refund"><![CDATA[Refund]]></string>
-        <string name="refunded"><![CDATA[Payment is refunded back to customer card.]]></string>
+        <string name="refunded"><![CDATA[Payment is REFUNDED on Lunar.]]></string>
         <string name="refund_title"><![CDATA[Refund Payment (Lunar)]]></string>
         <string name="refund_confirm"><![CDATA[Refund action is not reversible. All paid amount will return to customer! Confirm if you want to proceed.]]></string>
         <string name="void"><![CDATA[Void]]></string>
-        <string name="void_title"><![CDATA[Void Payment]]></string>
+        <string name="void_title"><![CDATA[Void Payment (Lunar)]]></string>
         <string name="void_confirm"><![CDATA[When you void this payment, authorization will be cancelled and you will not be able to claim it back! Void action is not reversible. Confirm if you want to proceed.]]></string>
-        <string name="voided"><![CDATA[Payment authorization is voided.]]></string>
+        <string name="voided"><![CDATA[Payment authorization is VOIDED on Lunar.]]></string>
+
+        <!-- admin messages -->
+        <string name="missing_order_id"><![CDATA[Order ID was not provided]]></string>
+        <string name="missing_order_transaction"><![CDATA[Could not find any transaction for provided order ID]]></string>
+        <string name="error_general_admin_txn"><![CDATA[There were errors during order transaction process. Please try again.]]></string>
     </group>
 </definitions>
