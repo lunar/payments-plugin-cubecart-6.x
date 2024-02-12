@@ -63,13 +63,14 @@
                 </span>
             </div>
 
+            {if $paymentMethod == 'mobilePay'}
             <div>
                 <label for="configuration_id">{$LANG.lunar_text.configuration_id}</label>
                 <span>
-                    <!-- @TODO adjust check for required attr -->
-                    <input type="text" name="module[configuration_id]" value="{$MODULE.configuration_id}" {if false}required{/if} class="textbox"/>
+                    <input type="text" name="module[configuration_id]" value="{$MODULE.configuration_id}" required class="textbox"/>
                 </span>
             </div>
+            {/if}
 
             <div>
                 <label for="shop_name">{$LANG.lunar_text.shop_name}</label>

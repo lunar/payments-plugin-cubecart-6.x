@@ -9,8 +9,10 @@ class Gateway
     const REMOTE_URL = 'https://pay.lunar.money/?id=';
     const TEST_REMOTE_URL = 'https://hosted-checkout-git-develop-lunar-app.vercel.app/?id=';
 
-    private $_module;
     private $_lang;
+    private $_db;
+    private $_config;
+    private $_module;
     private $_basket;
 
     private $paymentMethod = 'card';
@@ -28,10 +30,13 @@ class Gateway
         $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
-        $this->_module  = $module;
+        $this->_db = $GLOBALS['db'];
+        $this->_config = $GLOBALS['config'];
+
+        $this->_module = $module;
 
         $basket = $basket ?: $GLOBALS['cart']->basket;
-        $this->_basket	= $basket;
+        $this->_basket = $basket;
 
         $this->testMode = !!$_COOKIE['lunar_testmode'];
 
@@ -99,7 +104,7 @@ class Gateway
             $this->displayErrorMessage($this->_lang['txn_exists']);
         }
 
-        $transaction_exists  = $GLOBALS['db']->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
+        $transaction_exists  = $this->_db->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
         if ($transaction_exists) {
             $this->displayErrorMessage($this->_lang['txn_exists']);
         }
@@ -118,6 +123,7 @@ class Gateway
         }
 
         $order->paymentStatus(Order::PAYMENT_SUCCESS, $orderId);
+
         $order->orderStatus(Order::ORDER_PROCESS, $orderId);
 
         $transactionData['notes'][] = $this->_lang['paysuccess'];
@@ -170,7 +176,7 @@ class Gateway
         $this->args = [
             'integration' => [
                 'key' => $this->_module['public_key'],
-                'name' => $this->_module['shop_name'] ?: $GLOBALS['config']->get('config', 'store_name'),
+                'name' => $this->_module['shop_name'] ?: $this->_config->get('config', 'store_name'),
                 'logo' => $this->_module['logo_url'],
             ],
             'amount' => [
