@@ -6,7 +6,7 @@ global $order_id, $txns, $displayLunar, $modLang;
 
 // we extract order summary here, because $summary var isn't available
 $orderSummary = $GLOBALS['db']->select('CubeCart_order_summary', 'gateway', ['cart_order_id' => $order_id]);
-file_put_contents(dirname(__FILE__) . "/zzz.log", json_encode($txns[0], JSON_PRETTY_PRINT) . PHP_EOL, FILE_APPEND);
+
 if (!in_array($orderSummary[0]['gateway'], ['Lunar Payments', 'Lunar_Payments'])) {
     $displayLunar = false;
 }
