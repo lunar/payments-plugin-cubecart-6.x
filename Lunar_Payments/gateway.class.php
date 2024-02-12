@@ -141,6 +141,12 @@ class Gateway
                 $transactionData['notes'][] = $e->getMessage();
             }
 
+            /**
+             * We need at least 1 second between authorization and capture log
+             * to have them sorted in the right order by time (cubecart defaults)
+             */
+            sleep(1);
+
             if (isset($apiResponse['captureState'])) {
                 if ('completed' === $apiResponse['captureState']) {
                     $order->orderStatus(Order::ORDER_COMPLETE, $orderId);

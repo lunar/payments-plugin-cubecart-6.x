@@ -19,8 +19,7 @@ $txns = $GLOBALS['db']->select('CubeCart_transactions', false,
         'gateway' => 'Lunar_Payments',
     ],
     [
-        // 'time' => 'DESC',
-        'id' => 'DESC',
+        'time' => 'DESC',
     ]
 );
 

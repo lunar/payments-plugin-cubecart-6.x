@@ -42,8 +42,7 @@ class lunarTransactions
                 'gateway' => $moduleName
             ],
             [
-                // 'time' => 'DESC',
-                'id' => 'DESC',
+                'time' => 'DESC',
             ]
         );
 
