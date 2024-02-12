@@ -68,9 +68,7 @@ class Gateway
         }
 
         if (! $paymentIntentId) {
-            $this->displayErrorMessage('An error occurred creating payment intent. 
-                Please try again or contact system administrator.'
-            );
+            $this->displayErrorMessage($this->_lang['error_create_intent']);
         }
 
         httpredir(($this->testMode ? self::TEST_REMOTE_URL : self::REMOTE_URL) . $paymentIntentId);        
@@ -101,7 +99,7 @@ class Gateway
         $transactionData['notes'] = [];
 
         if ($orderSummary['status'] != '1') {
-            $this->displayErrorMessage($this->_lang['txn_exists']);
+            $this->displayErrorMessage($this->_lang['txn_exists']); // @TODO may we need another text error here
         }
 
         $transaction_exists  = $this->_db->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
@@ -118,44 +116,25 @@ class Gateway
         if (empty($apiResponse)) {
             $this->displayErrorMessage($this->_lang['invalidtxn']);
         }
+
         if (empty($apiResponse['authorisationCreated'])) {
             $this->displayErrorMessage($this->_lang['confirmerror']);
         }
 
         $order->paymentStatus(Order::PAYMENT_SUCCESS, $orderId);
 
-        $order->orderStatus(Order::ORDER_PROCESS, $orderId);
-
         $transactionData['notes'][] = $this->_lang['paysuccess'];
-
-        if ('instant' == $this->_module['capture_mode']) {
-            try {
-                $apiResponse = $this->apiClient->payments()->capture($transactionId, [
-                    'amount' => [
-                        'currency' => $orderSummary["currency"],
-                        'decimal' => (string) $orderSummary["total"],
-                    ]
-                ]);
-            } catch (\Lunar\Exception\ApiException $e) {
-                $transactionData['notes'][] = $e->getMessage();
-            }
-
-            if (isset($apiResponse['captureState'])) {
-                if ('completed' === $apiResponse['captureState']) {
-                    $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
-                    $transactionData['status'] = 'Captured';
-                    $transactionData['notes'][] = $this->_lang['captured'];
-                }
-                if ('declined' === $apiResponse['captureState']) {
-                    $transactionData['status'] = 'Capture Failed';
-                    $transactionData['notes'][] = $apiResponse['declinedReason']['error'];
-                }
-            }
-        }
 
         $order->logTransaction($transactionData);
 
         setcookie($this->intentKey, null, 1);
+
+        if ('instant' == $this->_module['capture_mode']) {
+            /** Uses hook to capture the transaction payment */
+            $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
+        } else {
+            $order->orderStatus(Order::ORDER_PROCESS, $orderId);
+        }
 
         httpredir(CC_STORE_URL.'/index.php?_a=complete');
     }
@@ -300,15 +279,9 @@ class Gateway
     {
         setcookie($this->intentKey, null, 1);
 
-        echo sanitizeVar($errorMessage);
-        exit(1);
+        $GLOBALS['gui']->setError($errorMessage);
 
-        // $GLOBALS['smarty']->assign('lunar', [
-        //     'error' => $errorMessage,
-        //     'return_url' => CC_STORE_URL.'/index.php?_a=checkout',
-        // ]);
-
-        // httpredir(CC_STORE_URL.'/index.php?_a=checkout');
+        httpredir(CC_STORE_URL.'/index.php?_a=checkout');
     }
 
     public function form() {}
