@@ -13,12 +13,21 @@ if ($g != 'orders' && $action != 'edit' && !$order_id) {
     $displayLunar = false;
 }
 
-$txns = $GLOBALS['db']->select('CubeCart_transactions', false, ['order_id' => $order_id, 'gateway' => 'Lunar_Payments'], ['time' => 'DESC']);
+$txns = $GLOBALS['db']->select('CubeCart_transactions', false,
+    [
+        'order_id' => $order_id, 
+        'gateway' => 'Lunar_Payments',
+    ],
+    [
+        // 'time' => 'DESC',
+        'id' => 'DESC',
+    ]
+);
 
 if (empty($txns)) {
     $displayLunar = false;
 }
 
 if ($displayLunar) {
-    $modlang = $GLOBALS['language']->getStrings('lunar_text');
+    $modLang = $GLOBALS['language']->getStrings('lunar_text');
 }

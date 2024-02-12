@@ -17,15 +17,6 @@ if (!empty($orderId)) {
         $lunarTransactions->captureTransaction();
     }
 
-    /* Void block */
-    // void request posted
-    if (!empty($GLOBALS['_POST']['confirm_lunar_void'])) {
-        require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
-
-        $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
-        $lunarTransactions->cancelTransaction();
-    }
-
     /* Refund block */
     // refund request posted
     if (!empty($GLOBALS['_POST']['confirm_lunar_refund'])) {
@@ -33,5 +24,14 @@ if (!empty($orderId)) {
 
         $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
         $lunarTransactions->refundTransaction();
+    }
+
+    /* Void block */
+    // void request posted
+    if (!empty($GLOBALS['_POST']['confirm_lunar_void'])) {
+        require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
+
+        $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
+        $lunarTransactions->cancelTransaction();
     }
 }

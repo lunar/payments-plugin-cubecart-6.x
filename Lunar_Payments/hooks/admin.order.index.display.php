@@ -2,6 +2,8 @@
 
 require_once(dirname(__FILE__).'/admin_tab_check.php');
 
+global $txns, $displayLunar, $modLang;
+
 if (!in_array($summary[0]['gateway'], ['Lunar Payments', 'Lunar_Payments'])) {
     $displayLunar = false;
 }
@@ -9,9 +11,9 @@ if (!in_array($summary[0]['gateway'], ['Lunar Payments', 'Lunar_Payments'])) {
 if ($displayLunar) {
 
     if ($txns[0]['status'] == 'Authorized') {
-        $tabcontent = '
+        $tabContent = '
             <div id="lunar_void" class="tab_content">
-            <h3>' . $modlang['void_title'] . '</h3>
+            <h3>' . $modLang['void_title'] . '</h3>
             <table>
                 <tbody>
                     <tr>
@@ -21,20 +23,20 @@ if ($displayLunar) {
                         </span>
                         </td>
                         <td>
-                            <label for="confirm_lunar_void" style="color:red;">' . $modlang['void_confirm'] . '</label>
+                            <label for="confirm_lunar_void" style="color:red;">' . $modLang['void_confirm'] . '</label>
                         </td>
                     </tr>
                 </tbody>
             </table>
             </div>';
 
-        $smarty_data['plugin_tabs'][] = $tabcontent;
+        $smarty_data['plugin_tabs'][] = $tabContent;
     }
 
     if ($txns[0]['status'] == 'Captured') {
-        $tabcontent = '
+        $tabContent = '
             <div id="lunar_refund" class="tab_content">
-                <h3>' . $modlang['refund_title'] . '</h3>
+                <h3>' . $modLang['refund_title'] . '</h3>
                 <table>
                     <tbody>
                         <tr>
@@ -44,13 +46,13 @@ if ($displayLunar) {
                                 </span>
                             </td>
                             <td>
-                                <label for="confirm_lunar_refund" style="color:red;">' . $modlang['refund_confirm'] . '</label>
+                                <label for="confirm_lunar_refund" style="color:red;">' . $modLang['refund_confirm'] . '</label>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>';
 
-        $smarty_data['plugin_tabs'][] = $tabcontent;
+        $smarty_data['plugin_tabs'][] = $tabContent;
     }
 }

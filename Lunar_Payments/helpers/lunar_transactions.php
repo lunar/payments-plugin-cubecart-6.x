@@ -42,7 +42,8 @@ class lunarTransactions
                 'gateway' => $moduleName
             ],
             [
-                'time' => 'DESC',
+                // 'time' => 'DESC',
+                'id' => 'DESC',
             ]
         );
 
@@ -110,9 +111,6 @@ class lunarTransactions
 
         $actionType = $this->actionType;
 
-        $g = isset($GLOBALS['_GET']['_g']) ? $GLOBALS['_GET']['_g'] : null;
-        $isAdminRequest = ($g === 'orders');
-
         try {
             $apiResponse = $this->apiClient->payments()->{$actionType}(
                 $transaction['trans_id'],
@@ -138,9 +136,7 @@ class lunarTransactions
 
             $this->order->logTransaction($transaction);
 
-            if ($isAdminRequest) {
-                $GLOBALS['main']->successMessage($this->trans($this->langKey));
-            }
+            $GLOBALS['main']->successMessage($this->trans($this->langKey));
             
         } elseif ('declined' === $apiResponse["{$actionType}State"]) {
             $transaction['status'] = ucfirst($actionType).' Failed';
@@ -149,9 +145,7 @@ class lunarTransactions
             $this->order->logTransaction($transaction);
 
         } else {
-            if ($isAdminRequest) {
-                $GLOBALS['main']->errorMessage($this->trans('error_general_admin_txn'));
-            }
+            $GLOBALS['main']->errorMessage($this->trans('error_general_admin_txn'));
         }
     }
 

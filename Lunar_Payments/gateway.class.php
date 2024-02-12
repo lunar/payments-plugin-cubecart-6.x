@@ -130,8 +130,31 @@ class Gateway
         setcookie($this->intentKey, null, 1);
 
         if ('instant' == $this->_module['capture_mode']) {
-            /** Uses hook to capture the transaction payment */
-            $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
+            try {
+                $apiResponse = $this->apiClient->payments()->capture($transactionId, [
+                    'amount' => [
+                        'currency' => $orderSummary["currency"],
+                        'decimal' => (string) $orderSummary["total"],
+                    ]
+                ]);
+            } catch (\Lunar\Exception\ApiException $e) {
+                $transactionData['notes'][] = $e->getMessage();
+            }
+
+            if (isset($apiResponse['captureState'])) {
+                if ('completed' === $apiResponse['captureState']) {
+                    $order->orderStatus(Order::ORDER_COMPLETE, $orderId);
+                    $transactionData['status'] = 'Captured';
+                    $transactionData['notes'][] = $this->_lang['captured'];
+                }
+                if ('declined' === $apiResponse['captureState']) {
+                    $transactionData['status'] = 'Capture Failed';
+                    $transactionData['notes'][] = $apiResponse['declinedReason']['error'];
+                }
+            }
+
+            $order->logTransaction($transactionData);
+
         } else {
             $order->orderStatus(Order::ORDER_PROCESS, $orderId);
         }
