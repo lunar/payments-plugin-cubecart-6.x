@@ -11,7 +11,6 @@ class Gateway
 
     private $_lang;
     private $_db;
-    private $_config;
     private $_module;
     private $_basket;
 
@@ -31,7 +30,6 @@ class Gateway
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
         $this->_db = $GLOBALS['db'];
-        $this->_config = $GLOBALS['config'];
 
         $this->_module = $module;
 
@@ -184,7 +182,7 @@ class Gateway
         $this->args = [
             'integration' => [
                 'key' => $this->_module['public_key'],
-                'name' => $this->_module['shop_name'] ?: $this->_config->get('config', 'store_name'),
+                'name' => $this->_module['shop_name'] ?: $GLOBALS['config']->get('config', 'store_name'),
                 'logo' => $this->_module['logo_url'],
             ],
             'amount' => [
