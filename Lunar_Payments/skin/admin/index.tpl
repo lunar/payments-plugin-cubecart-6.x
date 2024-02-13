@@ -2,7 +2,10 @@
     <input type="hidden" name="module[name]" value="Lunar" />
 
     <div id="Lunar_Form" class="tab_content">
-        <h3>{$TITLE}</h3>
+        <h3>
+            <span>{$TITLE}</span>
+            <span style="margin-left:0.7rem;">{$MODULE.name}</span>
+        </h3>
 
         <fieldset>
             <legend>{$LANG.module.config_settings}</legend>
