@@ -4,25 +4,24 @@ if (!class_exists('\\Lunar\\Lunar')) {
     require_once('vendor/autoload.php');
 }
 
-class Gateway
+class LunarPaymentsBase
 {
     const REMOTE_URL = 'https://pay.lunar.money/?id=';
     const TEST_REMOTE_URL = 'https://hosted-checkout-git-develop-lunar-app.vercel.app/?id=';
 
-    private $_lang;
-    private $_db;
-    private $_module;
-    private $_basket;
-
-    private $paymentMethod = 'card';
-
-    private $intentKey = '_lunar_intent_id';
-    private $currencyCode = '';
-    private $testMode = false;
-    private $args = [];
+    protected $paymentMethod = '';
+    protected $moduleCode = '';
+    protected $_lang;
+    protected $_db;
+    protected $_module;
+    protected $_basket;
+    protected $intentKey = '_lunar_intent_id';
+    protected $currencyCode = '';
+    protected $testMode = false;
+    protected $args = [];
 
     /** @var \Lunar\Lunar */
-    private $apiClient;
+    protected $apiClient;
 
     public function __construct($module = false, $basket = false)
     {
@@ -44,7 +43,7 @@ class Gateway
     public function transfer()
     {
         return [
-            'action'  => 'index.php?_g=rm&type=plugins&cmd=process&module=Lunar_Payments',
+            'action'  => 'index.php?_g=rm&type=plugins&cmd=process&module='.$this->moduleCode,
             'method'  => 'post',
             'target'  => '_self',
             'submit'  => 'auto',
@@ -93,11 +92,12 @@ class Gateway
         $transactionData['order_id'] = $orderId;
         $transactionData['amount'] = sprintf("%.2f", $orderSummary["total"]);
         $transactionData['customer_id'] = $orderSummary["customer_id"];
-        $transactionData['gateway'] = "Lunar_Payments";
+        $transactionData['gateway'] = $this->moduleCode;
+
         $transactionData['notes'] = [];
 
         if ($orderSummary['status'] != '1') {
-            $this->displayErrorMessage($this->_lang['txn_exists']); // @TODO may we need another text error here
+            $this->displayErrorMessage($this->_lang['txn_exists']); // @TODO maybe we need another text error here
         }
 
         $transaction_exists  = $this->_db->select('CubeCart_transactions', ['id'], ['trans_id' => $transactionId]);
@@ -205,7 +205,7 @@ class Gateway
                 ],
                 'lunarPluginVersion' => $this->getPluginVersion(),
             ],
-            'redirectUrl' => CC_STORE_URL.'/index.php?_g=rm&type=plugins&cmd=call&module=Lunar_Payments'
+            'redirectUrl' => CC_STORE_URL.'/index.php?_g=rm&type=plugins&cmd=call&module='.$this->moduleCode
                                 .'&orderid='.$orderSummary['cart_order_id'],
             'preferredPaymentMethod' => $this->paymentMethod,
         ];
@@ -225,7 +225,7 @@ class Gateway
     /**
      * 
      */
-    public function savePaymentIntent($paymentIntentId)
+    private function savePaymentIntent($paymentIntentId)
     {
         return setcookie($this->intentKey, $paymentIntentId, 0, '', '', false, true);
     }
@@ -233,7 +233,7 @@ class Gateway
     /**
      * 
      */
-    public function getPaymentIntent()
+    private function getPaymentIntent()
     {
         return isset($_COOKIE[$this->intentKey]) ? $_COOKIE[$this->intentKey] : null;
     }

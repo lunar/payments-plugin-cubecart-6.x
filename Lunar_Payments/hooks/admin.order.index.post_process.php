@@ -1,8 +1,6 @@
 <?php
 
-if (!defined('CC_DS')) die('Access Denied');
-
-$lunarModuleName = 'Lunar_Payments';
+global $lunarPluginCode;
 
 $orderId = isset($record['cart_order_id']) ? $record['cart_order_id'] : null;
 
@@ -13,7 +11,7 @@ if (!empty($orderId)) {
     if (isset($_POST['order']['status']) && $_POST['order']['status'] == '3') {
         require_once (dirname(__DIR__).'/helpers/lunar_transactions.php'); 
 
-        $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
+        $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->captureTransaction();
     }
 
@@ -22,7 +20,7 @@ if (!empty($orderId)) {
     if (!empty($GLOBALS['_POST']['confirm_lunar_refund'])) {
         require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
 
-        $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
+        $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->refundTransaction();
     }
 
@@ -31,7 +29,7 @@ if (!empty($orderId)) {
     if (!empty($GLOBALS['_POST']['confirm_lunar_void'])) {
         require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
 
-        $lunarTransactions = new lunarTransactions($lunarModuleName, $orderId);
+        $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->cancelTransaction();
     }
 }

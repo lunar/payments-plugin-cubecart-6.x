@@ -1,7 +1,10 @@
 <?php
 
-if (!defined('CC_INI_SET')) die('Access Denied');
+// small hack to have loaded definitions from one place
+$GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
 
-$module = new Module(__FILE__, $_GET['module'], 'admin/index.tpl', true);
+global $lunarPluginPath;
+
+$module = new Module($lunarPluginPath, $_GET['module'], CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/skin/admin/index.tpl', true);
 
 $page_content = $module->display();

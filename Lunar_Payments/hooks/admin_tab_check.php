@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('CC_DS')) die('Access Denied');
+global $lunarPluginCode;
 
 $g = isset($GLOBALS['_GET']['_g']) ? $GLOBALS['_GET']['_g'] : null;
 $action = isset($GLOBALS['_GET']['action']) ? $GLOBALS['_GET']['action'] : null;
@@ -16,7 +16,7 @@ if ($g != 'orders' && $action != 'edit' && !$order_id) {
 $txns = $GLOBALS['db']->select('CubeCart_transactions', false,
     [
         'order_id' => $order_id, 
-        'gateway' => 'Lunar_Payments',
+        'gateway' => $lunarPluginCode,
     ],
     [
         'time' => 'DESC',

@@ -73,11 +73,7 @@ class lunarTransactions
         $this->actionType = 'refund';
         $this->langKey = 'refunded';
         $this->canInsertTransaction = ($this->lastTransaction['status'] === 'Captured');
-        /**
-         * Set new status on order that has been refunded 
-         * 70 is an arbitrarily chosen order status ID, so as not to interfere with any other status.
-         */
-        $this->newOrderStatus = 70;
+        $this->newOrderStatus = Order::ORDER_CANCELLED;
 
         $this->processTransaction();
     }

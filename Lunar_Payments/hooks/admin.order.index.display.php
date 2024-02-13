@@ -1,10 +1,9 @@
 <?php
 
-require_once(dirname(__FILE__).'/admin_tab_check.php');
-
 global $txns, $displayLunar, $modLang;
 
-if (!in_array($summary[0]['gateway'], ['Lunar Payments', 'Lunar_Payments'])) {
+// Here the gateway name is without "_"
+if (!strstr($summary[0]['gateway'], 'lunar ')) {
     $displayLunar = false;
 }
 

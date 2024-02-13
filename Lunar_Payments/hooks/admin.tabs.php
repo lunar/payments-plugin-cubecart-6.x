@@ -1,13 +1,11 @@
 <?php
 
-require_once(dirname(__FILE__).'/admin_tab_check.php');
-
 global $order_id, $txns, $displayLunar, $modLang;
 
-// we extract order summary here, because $summary var isn't available
+// We extract order summary here, because $summary var isn't available
 $orderSummary = $GLOBALS['db']->select('CubeCart_order_summary', 'gateway', ['cart_order_id' => $order_id]);
 
-if (!in_array($orderSummary[0]['gateway'], ['Lunar Payments', 'Lunar_Payments'])) {
+if (!strstr($orderSummary[0]['gateway'], 'lunar_')) {
     $displayLunar = false;
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <installer version="1.0">
   <info>
-	<name><![CDATA[Lunar]]></name>
+	<name><![CDATA[Lunar Card]]></name>
 	<description><![CDATA[Lunar Online Payments for Cubecart 6.x]]></description>
 	<type>plugins</type>
 	<mobile_optimized>true</mobile_optimized>
@@ -20,6 +20,5 @@
     <hook trigger="admin.order.index.post_process" enabled="1"><![CDATA[Capture Payment when Order Status is Complete]]></hook>
     <hook trigger="admin.order.index.display" enabled="1"><![CDATA[Refund/Void Button for Orders]]></hook>
     <hook trigger="admin.tabs" enabled="1"><![CDATA[Refund/Void Tab for Lunar Orders]]></hook>
-    <hook trigger="admin.order.index.list" enabled="1"><![CDATA[Show 'Refunded' status for Lunar Orders]]></hook>
   </hooks>
 </installer>

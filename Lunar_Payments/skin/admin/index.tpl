@@ -1,10 +1,11 @@
 <form action="{$VAL_SELF}" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="module[name]" value="Lunar" />
 
     <div id="Lunar_Form" class="tab_content">
         <h3>
             <span>{$TITLE}</span>
-            <span style="margin-left:0.7rem;">{$MODULE.name}</span>
+            <span style="margin-left:0.7rem;">
+                {'Lunar '}{$lunarPluginCode|capitalize}
+            </span>
         </h3>
 
         <fieldset>
@@ -44,7 +45,8 @@
             <div>
                 <label for="checkout_name">{$LANG.lunar_text.checkout_name}</label>
                 <span>
-                    <input name="module[checkout_name]" id="checkout_name" class="textbox" type="text" value="{$MODULE.checkout_name}"/>
+                    <input name="module[checkout_name]" id="checkout_name" class="textbox" type="text" 
+                        value="{if $MODULE.checkout_name}{$MODULE.checkout_name}{else}{$lunarPluginCode|capitalize}{/if}"/>
                 </span>
             </div>
             <div>
@@ -66,7 +68,7 @@
                 </span>
             </div>
 
-            {if $paymentMethod == 'mobilePay'}
+            {if $lunarPluginCode == 'mobilePay'}
             <div>
                 <label for="configuration_id">{$LANG.lunar_text.configuration_id}</label>
                 <span>
@@ -78,7 +80,8 @@
             <div>
                 <label for="shop_name">{$LANG.lunar_text.shop_name}</label>
                 <span>
-                    <input type="text" name="module[shop_name]" value="{if $MODULE.shop_name}{$MODULE.shop_name}{else}{$CONFIG['store_title']}{/if}" class="textbox"/>
+                    <input type="text" name="module[shop_name]" 
+                        value="{if $MODULE.shop_name}{$MODULE.shop_name}{else}{$CONFIG['store_title']}{/if}" class="textbox"/>
                 </span>
             </div>
 
