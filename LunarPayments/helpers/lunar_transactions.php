@@ -24,6 +24,7 @@ class lunarTransactions
             return;
         }
 
+        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/LunarPayments/language', 'module.definitions.xml');
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
         $this->_config = $GLOBALS['config']->get($pluginCode);
@@ -66,26 +67,20 @@ class lunarTransactions
     }
 
     /**
-     * 
-     */
-    public function refundTransaction()
-    {
-        $this->actionType = 'refund';
-        $this->langKey = 'refunded';
-        $this->canInsertTransaction = ($this->lastTransaction['status'] === 'Captured');
-        $this->newOrderStatus = Order::ORDER_CANCELLED;
-
-        $this->processTransaction();
-    }
-
-    /**
-     * 
+     * It will VOID or REFUND transaction based on last order transaction from DB
      */
     public function cancelTransaction()
     {
-        $this->actionType = 'cancel';
-        $this->langKey = 'voided';
-        $this->canInsertTransaction = ($this->lastTransaction['status'] === 'Authorized');
+        if ($this->lastTransaction['status'] === 'Captured') {
+            $this->actionType = 'refund';
+            $this->langKey = 'refunded';
+            $this->canInsertTransaction = true;
+        } elseif ($this->lastTransaction['status'] === 'Authorized') {
+            $this->actionType = 'cancel';
+            $this->langKey = 'voided';
+            $this->canInsertTransaction = true;
+        }
+        
         $this->newOrderStatus = Order::ORDER_CANCELLED;
 
         $this->processTransaction();

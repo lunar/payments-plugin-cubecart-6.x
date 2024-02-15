@@ -7,5 +7,5 @@ if (!class_exists('\\LunarPaymentsBase')) {
 class Gateway extends LunarPaymentsBase
 {
     protected $paymentMethod = 'mobilePay';
-    protected $moduleCode = 'lunar_mobilepay';
+    protected $pluginCode = 'lunar_mobilepay';
 }

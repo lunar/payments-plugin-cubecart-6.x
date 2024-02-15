@@ -10,7 +10,7 @@ class LunarPaymentsBase
     const TEST_REMOTE_URL = 'https://hosted-checkout-git-develop-lunar-app.vercel.app/?id=';
 
     protected $paymentMethod = '';
-    protected $moduleCode = '';
+    protected $pluginCode = '';
     protected $_lang;
     protected $_db;
     protected $_module;
@@ -43,7 +43,7 @@ class LunarPaymentsBase
     public function transfer()
     {
         return [
-            'action'  => 'index.php?_g=rm&type=plugins&cmd=process&module='.$this->moduleCode,
+            'action'  => 'index.php?_g=rm&type=plugins&cmd=process&module='.$this->pluginCode,
             'method'  => 'post',
             'target'  => '_self',
             'submit'  => 'auto',
@@ -92,7 +92,7 @@ class LunarPaymentsBase
         $transactionData['order_id'] = $orderId;
         $transactionData['amount'] = sprintf("%.2f", $orderSummary["total"]);
         $transactionData['customer_id'] = $orderSummary["customer_id"];
-        $transactionData['gateway'] = $this->moduleCode;
+        $transactionData['gateway'] = $this->pluginCode;
 
         $transactionData['notes'] = [];
 
@@ -205,7 +205,7 @@ class LunarPaymentsBase
                 ],
                 'lunarPluginVersion' => $this->getPluginVersion(),
             ],
-            'redirectUrl' => CC_STORE_URL.'/index.php?_g=rm&type=plugins&cmd=call&module='.$this->moduleCode
+            'redirectUrl' => CC_STORE_URL.'/index.php?_g=rm&type=plugins&cmd=call&module='.$this->pluginCode
                                 .'&orderid='.$orderSummary['cart_order_id'],
             'preferredPaymentMethod' => $this->paymentMethod,
         ];
@@ -292,7 +292,7 @@ class LunarPaymentsBase
      */
     private function getPluginVersion()
     {
-        $xml = new SimpleXMLElement(file_get_contents(CC_ROOT_DIR.'/modules/plugins/'.$this->moduleCode.'/config.xml'));
+        $xml = new SimpleXMLElement(file_get_contents(CC_ROOT_DIR.'/modules/plugins/'.$this->pluginCode.'/config.xml'));
 
         if(!empty($xml->info->version)) {
             return (string) $xml->info->version;
