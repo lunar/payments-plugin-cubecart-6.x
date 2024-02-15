@@ -1,9 +1,12 @@
 <?php
 
-global $txns, $displayLunar, $modLang;
+global $lunarPluginCode, $txns, $displayLunar, $modLang;
 
-// Here the gateway name is without "_"
-if (!strstr($summary[0]['gateway'], 'lunar ')) {
+// The gateway name from global $summary is without "_"
+// so, we manually extract it from DB
+$orderSummary = $GLOBALS['db']->select('CubeCart_order_summary', 'gateway', ['cart_order_id' => $order_id]);
+
+if ($orderSummary[0]['gateway'] !== $lunarPluginCode) {
     $displayLunar = false;
 }
 
@@ -12,7 +15,7 @@ if ($displayLunar) {
     if ($txns[0]['status'] == 'Authorized') {
         $tabContent = '
             <div id="lunar_void" class="tab_content">
-            <h3>' . $modLang['void_title'] . '</h3>
+            <h3>' . $modLang['void_title'] . " ($lunarPluginCode)" . '</h3>
             <table>
                 <tbody>
                     <tr>
@@ -35,7 +38,7 @@ if ($displayLunar) {
     if ($txns[0]['status'] == 'Captured') {
         $tabContent = '
             <div id="lunar_refund" class="tab_content">
-                <h3>' . $modLang['refund_title'] . '</h3>
+                <h3>' . $modLang['refund_title'] . " ($lunarPluginCode)" . '</h3>
                 <table>
                     <tbody>
                         <tr>

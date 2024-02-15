@@ -292,7 +292,7 @@ class LunarPaymentsBase
      */
     private function getPluginVersion()
     {
-        $xml = new SimpleXMLElement(file_get_contents(dirname(__FILE__).'/config.xml'));
+        $xml = new SimpleXMLElement(file_get_contents(CC_ROOT_DIR.'/modules/plugins/'.$this->moduleCode.'/config.xml'));
 
         if(!empty($xml->info->version)) {
             return (string) $xml->info->version;

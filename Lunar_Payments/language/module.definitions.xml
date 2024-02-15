@@ -26,10 +26,10 @@
         <string name="captured"><![CDATA[Successfully CAPTURED authorized amount on Lunar.]]></string>
         <string name="refund"><![CDATA[Refund]]></string>
         <string name="refunded"><![CDATA[Payment was REFUNDED on Lunar.]]></string>
-        <string name="refund_title"><![CDATA[Refund Payment (Lunar)]]></string>
+        <string name="refund_title"><![CDATA[Refund Payment]]></string>
         <string name="refund_confirm"><![CDATA[Refund action is not reversible. All paid amount will return to customer! Confirm if you want to proceed.]]></string>
         <string name="void"><![CDATA[Void]]></string>
-        <string name="void_title"><![CDATA[Void Payment (Lunar)]]></string>
+        <string name="void_title"><![CDATA[Void Payment]]></string>
         <string name="void_confirm"><![CDATA[When you void this payment, authorization will be cancelled and you will not be able to claim it back! Void action is not reversible. Confirm if you want to proceed.]]></string>
         <string name="voided"><![CDATA[Payment authorization was VOIDED on Lunar.]]></string>
 

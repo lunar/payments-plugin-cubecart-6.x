@@ -4,7 +4,7 @@
         <h3>
             <span>{$TITLE}</span>
             <span style="margin-left:0.7rem;">
-                {'Lunar '}{$lunarPluginCode|capitalize}
+                {'Lunar '}{$lunarMethod|capitalize}
             </span>
         </h3>
 
@@ -46,7 +46,7 @@
                 <label for="checkout_name">{$LANG.lunar_text.checkout_name}</label>
                 <span>
                     <input name="module[checkout_name]" id="checkout_name" class="textbox" type="text" 
-                        value="{if $MODULE.checkout_name}{$MODULE.checkout_name}{else}{$lunarPluginCode|capitalize}{/if}"/>
+                        value="{if $MODULE.checkout_name}{$MODULE.checkout_name}{else}{$lunarMethod|capitalize}{/if}"/>
                 </span>
             </div>
             <div>
