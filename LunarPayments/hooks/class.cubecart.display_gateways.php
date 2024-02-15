@@ -8,7 +8,7 @@ if ($lunarConfig['status']) {
         $description = '<div style="display:flex;height:2rem"><span>'.$lunarConfig['checkout_name']
                 .'</span>'.'<div style="margin-left:1rem;"><img style="height:2rem;" src="/modules/plugins/LunarPayments/skin/images/mobilepay-logo.png" alt="mobilepay logo"></div></div>';
     } else {
-        $description = '<div style="display:flex;margin-left:1rem;align-items: center;">'.$lunarConfig['checkout_name']
+        $description = '<div style="display:flex;align-items: center;">'.$lunarConfig['checkout_name']
         .'<img style="margin-left:0.3rem;" src="/modules/plugins/LunarPayments/skin/images/mastercard.svg" alt="mastercard logo">'
         .'<img style="margin-left:0.3rem;" src="/modules/plugins/LunarPayments/skin/images/visa.svg" alt="visa logo">'
         .'<img style="margin-left:0.3rem;" src="/modules/plugins/LunarPayments/skin/images/maestro.svg" alt="maestro logo"></div>';
