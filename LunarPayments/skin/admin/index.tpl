@@ -68,7 +68,7 @@
                 </span>
             </div>
 
-            {if $lunarPluginCode == 'mobilePay'}
+            {if $lunarPluginCode == 'lunar_mobilepay'}
             <div>
                 <label for="configuration_id">{$LANG.lunar_text.configuration_id}</label>
                 <span>
