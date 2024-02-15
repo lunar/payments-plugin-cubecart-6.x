@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions version="1.0"><group name="lunar_text"></group></definitions>
+
+<!-- we load strings from base LunarPayments folder -->
