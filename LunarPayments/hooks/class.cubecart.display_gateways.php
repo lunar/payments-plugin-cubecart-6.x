@@ -27,7 +27,7 @@ if ($lunarConfig['status']) {
             $gateways[0] = $gatewayData;
         }
     } else {
-        $gateways[199] = $gatewayData;
-        $gateways[199]['default'] = isset($lunarConfig['default']) ? (bool) $lunarConfig['default'] : true;
+        $gatewayData['default'] = isset($lunarConfig['default']) ? (bool) $lunarConfig['default'] : true;
+        $gateways[] = $gatewayData;
     }
 }
