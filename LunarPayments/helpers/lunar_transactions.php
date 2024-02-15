@@ -18,7 +18,7 @@ class lunarTransactions
     private $canInsertTransaction;
     private $newOrderStatus;
 
-    public function __construct($moduleName, $orderId)
+    public function __construct($pluginCode, $orderId)
     {
         if (!$this->orderId = $orderId) {
             return;
@@ -26,7 +26,7 @@ class lunarTransactions
 
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
-        $this->_config = $GLOBALS['config']->get($moduleName);
+        $this->_config = $GLOBALS['config']->get($pluginCode);
     
         $this->apiClient = new \Lunar\Lunar($this->_config['app_key'], null, !!$_COOKIE['lunar_testmode']);
     
@@ -39,7 +39,7 @@ class lunarTransactions
         $lastTransaction = $db->select('CubeCart_transactions', false,
             [
                 'order_id' => $this->orderId,
-                'gateway' => $moduleName
+                'gateway' => $pluginCode
             ],
             [
                 'time' => 'DESC',

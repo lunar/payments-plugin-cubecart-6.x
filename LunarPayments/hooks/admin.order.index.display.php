@@ -21,17 +21,17 @@ if ($displayLunar) {
                     <tr>
                         <td>
                         <span>
-                            <input type="hidden" name="confirm_lunar_void" id="confirm_lunar_void" class="toggle" value="0" original="0">
+                            <input type="hidden" name="confirm_void_'.$lunarPluginCode.'" id="confirm_void_'.$lunarPluginCode.'" class="toggle" value="0" original="0">
                         </span>
                         </td>
                         <td>
-                            <label for="confirm_lunar_void" style="color:red;">' . $modLang['void_confirm'] . '</label>
+                            <label for="confirm_void_'.$lunarPluginCode.'" style="color:red;">' . $modLang['void_confirm'] . '</label>
                         </td>
                     </tr>
                 </tbody>
             </table>
             </div>';
-
+            
         $smarty_data['plugin_tabs'][] = $tabContent;
     }
 
@@ -44,11 +44,11 @@ if ($displayLunar) {
                         <tr>
                             <td>
                                 <span>
-                                    <input type="hidden" name="confirm_lunar_refund" id="confirm_lunar_refund" class="toggle" value="0" original="0">
+                                    <input type="hidden" name="confirm_refund_'.$lunarPluginCode.'" id="confirm_refund_'.$lunarPluginCode.'" class="toggle" value="0" original="0">
                                 </span>
                             </td>
                             <td>
-                                <label for="confirm_lunar_refund" style="color:red;">' . $modLang['refund_confirm'] . '</label>
+                                <label for="confirm_refund_'.$lunarPluginCode.'" style="color:red;">' . $modLang['refund_confirm'] . '</label>
                             </td>
                         </tr>
                     </tbody>

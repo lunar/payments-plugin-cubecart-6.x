@@ -1,11 +1,11 @@
 <?php
 
-global $order_id, $txns, $displayLunar, $modLang;
+global $lunarPluginCode, $order_id, $txns, $displayLunar, $modLang;
 
 // We extract order summary here, because $summary var isn't available
 $orderSummary = $GLOBALS['db']->select('CubeCart_order_summary', 'gateway', ['cart_order_id' => $order_id]);
 
-if (!strstr($orderSummary[0]['gateway'], 'lunar_')) {
+if ($orderSummary[0]['gateway'] != $lunarPluginCode) {
     $displayLunar = false;
 }
 
@@ -43,7 +43,7 @@ if ($displayLunar) {
     // clear cache when Lunar settings are saved
     if ($g == 'plugins') {
         if (isset($_GET['module'])) {
-            if ($_GET['module'] == 'LunarPayments') {
+            if ($_GET['module'] == $lunarPluginCode) {
                 if (isset($_POST['module']['status'])) {
                     $GLOBALS['cache']->clear();
                 }

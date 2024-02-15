@@ -9,7 +9,9 @@ if (!empty($orderId)) {
     /* Capture block for authorized payments */
     // when order status set to complete
     if (isset($_POST['order']['status']) && $_POST['order']['status'] == '3') {
-        require_once (dirname(__DIR__).'/helpers/lunar_transactions.php'); 
+        if (!class_exists('lunarTransactions')) {
+            require(CC_ROOT_DIR.'/modules/plugins/LunarPayments/helpers/lunar_transactions.php'); 
+        }
 
         $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->captureTransaction();
@@ -17,8 +19,10 @@ if (!empty($orderId)) {
 
     /* Refund block */
     // refund request posted
-    if (!empty($GLOBALS['_POST']['confirm_lunar_refund'])) {
-        require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
+    if (!empty($GLOBALS['_POST']['confirm_refund_'.$lunarPluginCode])) {
+        if (!class_exists('lunarTransactions')) {
+            require(CC_ROOT_DIR.'/modules/plugins/LunarPayments/helpers/lunar_transactions.php'); 
+        }
 
         $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->refundTransaction();
@@ -26,8 +30,10 @@ if (!empty($orderId)) {
 
     /* Void block */
     // void request posted
-    if (!empty($GLOBALS['_POST']['confirm_lunar_void'])) {
-        require_once (dirname(__DIR__).'/helpers/lunar_transactions.php');
+    if (!empty($GLOBALS['_POST']['confirm_void_'.$lunarPluginCode])) {
+        if (!class_exists('lunarTransactions')) {
+            require(CC_ROOT_DIR.'/modules/plugins/LunarPayments/helpers/lunar_transactions.php'); 
+        }
 
         $lunarTransactions = new lunarTransactions($lunarPluginCode, $orderId);
         $lunarTransactions->cancelTransaction();
