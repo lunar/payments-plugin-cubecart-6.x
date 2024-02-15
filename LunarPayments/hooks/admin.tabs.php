@@ -43,7 +43,7 @@ if ($displayLunar) {
     // clear cache when Lunar settings are saved
     if ($g == 'plugins') {
         if (isset($_GET['module'])) {
-            if ($_GET['module'] == 'Lunar_Payments') {
+            if ($_GET['module'] == 'LunarPayments') {
                 if (isset($_POST['module']['status'])) {
                     $GLOBALS['cache']->clear();
                 }

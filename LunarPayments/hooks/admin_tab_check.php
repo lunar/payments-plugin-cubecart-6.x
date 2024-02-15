@@ -28,6 +28,6 @@ if (empty($txns)) {
 }
 
 if ($displayLunar) {
-    $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
+    $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/LunarPayments/language', 'module.definitions.xml');
     $modLang = $GLOBALS['language']->getStrings('lunar_text');
 }

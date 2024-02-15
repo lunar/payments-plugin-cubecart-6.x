@@ -25,7 +25,7 @@ class LunarPaymentsBase
 
     public function __construct($module = false, $basket = false)
     {
-        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/Lunar_Payments/language', 'module.definitions.xml');
+        $GLOBALS['language']->loadDefinitions('lunar_text', CC_ROOT_DIR.'/modules/plugins/LunarPayments/language', 'module.definitions.xml');
         $this->_lang = $GLOBALS['language']->getStrings('lunar_text');
 
         $this->_db = $GLOBALS['db'];
