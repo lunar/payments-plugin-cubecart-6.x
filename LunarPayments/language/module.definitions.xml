@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions version="1.0">
+    <group name="lunar_text">
+        <string name="setup_lunar"><![CDATA[Configure Lunar]]></string>
+        <string name="checkout_name"><![CDATA[Payment name (displayed to customers)]]></string>
+        <string name="app_key"><![CDATA[App Key]]></string>
+        <string name="public_key"><![CDATA[Public Key]]></string>
+        <string name="logo_url"><![CDATA[Logo URL]]></string>
+        <string name="configuration_id"><![CDATA[Configuration ID]]></string>
+        <string name="shop_name"><![CDATA[Shop name]]></string>
+        <string name="capture_mode"><![CDATA[Capture Mode]]></string>
+        <string name="instant"><![CDATA[Instant]]></string>
+        <string name="delayed"><![CDATA[Delayed]]></string>
+
+        <!-- messages -->
+        <string name="error_create_intent"><![CDATA[An error occurred creating payment intent. Please try again or contact system administrator.]]></string>
+        <string name="invalid_txn"><![CDATA[Invalid Transaction ID]]></string>
+        <string name="txn_exists"><![CDATA[This Transaction has been processed before.]]></string>
+        <string name="idsmissing"><![CDATA[Required order id is missing. Please contact administrator.]]></string>
+        <string name="confirmerror"><![CDATA[Confirmation process contains errors.]]></string>
+        <string name="notsuccessful"><![CDATA[Payment confirmation was not successful]]></string>
+        <string name="amountmismatch"><![CDATA[Amounts mismatch for the payment]]></string>
+        <string name="user_payment_error"><![CDATA[We were unable to confirm your payment. Please contact administrator for more information.]]></string>
+        <string name="error_unknown"><![CDATA[There were errors during checkout. Please contact administrator.]]></string>
+        <string name="paysuccess"><![CDATA[Payment successful and confirmed.]]></string>
+        <string name="captured"><![CDATA[Successfully CAPTURED authorized amount on Lunar.]]></string>
+        <string name="refund"><![CDATA[Refund]]></string>
+        <string name="refunded"><![CDATA[Payment was REFUNDED on Lunar.]]></string>
+        <string name="refund_title"><![CDATA[Refund Payment]]></string>
+        <string name="refund_confirm"><![CDATA[Refund action is not reversible. All paid amount will return to customer! Confirm if you want to proceed.]]></string>
+        <string name="void"><![CDATA[Void]]></string>
+        <string name="void_title"><![CDATA[Void Payment]]></string>
+        <string name="void_confirm"><![CDATA[When you void this payment, authorization will be cancelled and you will not be able to claim it back! Void action is not reversible. Confirm if you want to proceed.]]></string>
+        <string name="voided"><![CDATA[Payment authorization was VOIDED on Lunar.]]></string>
+
+        <!-- admin messages -->
+        <string name="cache_reminder"><![CDATA[Please note that changes won't show on the front end until the "Clear Cache" button is clicked.]]></string>
+        <string name="missing_order_id"><![CDATA[Order ID was not provided]]></string>
+        <string name="missing_order_transaction"><![CDATA[Could not find any transaction for provided order ID]]></string>
+        <string name="error_general_admin_txn"><![CDATA[There were errors during order transaction process. Please try again.]]></string>
+    </group>
+</definitions>

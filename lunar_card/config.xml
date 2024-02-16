@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer version="1.0">
+  <info>
+	<name><![CDATA[Lunar Card]]></name>
+	<description><![CDATA[Lunar Online Payments for Cubecart 6.x]]></description>
+	<type>plugins</type>
+	<mobile_optimized>true</mobile_optimized>
+	<version>2.0.0</version>
+	<minVersion>6.0.0</minVersion>
+	<maxVersion>6.*.*</maxVersion>
+	<creator><![CDATA[Lunar]]></creator>
+	<homepage><![CDATA[http://www.lunar.app]]></homepage>
+	<uid>support@lunar.app</uid>
+	<block>false</block>
+  </info>
+
+  <hooks>
+    <hook trigger="class.cubecart.display_gateways" enabled="1"><![CDATA[Display payment method on checkout]]></hook>
+	<hook trigger="class.cubecart.construct.callback.gateway" enabled="1"><![CDATA[Callback Handler]]></hook>
+    <hook trigger="admin.order.index.post_process" enabled="1"><![CDATA[Capture, Refund, Void Payment when Order Status change]]></hook>
+  </hooks>
+</installer>
