@@ -100,6 +100,8 @@
 
     {$MODULE_ZONES}
 
+    <div style="color:red;">{$LANG.lunar_text.cache_reminder}</div>
+
     <div class="form_control"><input type="submit" name="save" value="{$LANG.common.save}" /></div>
     <input type="hidden" name="token" value="{$SESSION_TOKEN}" />
 </form>

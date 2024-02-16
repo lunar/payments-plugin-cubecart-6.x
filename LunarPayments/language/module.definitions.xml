@@ -34,6 +34,7 @@
         <string name="voided"><![CDATA[Payment authorization was VOIDED on Lunar.]]></string>
 
         <!-- admin messages -->
+        <string name="cache_reminder"><![CDATA[Please note that changes won't show on the front end until the "Clear Cache" button is clicked.]]></string>
         <string name="missing_order_id"><![CDATA[Order ID was not provided]]></string>
         <string name="missing_order_transaction"><![CDATA[Could not find any transaction for provided order ID]]></string>
         <string name="error_general_admin_txn"><![CDATA[There were errors during order transaction process. Please try again.]]></string>
